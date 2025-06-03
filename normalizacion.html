@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Normalización de Bases de Datos con SQL Server - Guía Completa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 50px 0;
+            background: linear-gradient(45deg, #2c3e50, #3498db);
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.05) 10px,
+                rgba(255, 255, 255, 0.05) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav {
+            background: #34495e;
+            padding: 20px 0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            position: sticky;
+            top: 20px;
+            z-index: 1000;
+        }
+
+        .nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 500;
+        }
+
+        .nav a:hover {
+            background: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .section {
+            margin-bottom: 50px;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid #3498db;
+            position: relative;
+        }
+
+        .section h3 {
+            color: #34495e;
+            font-size: 1.8em;
+            margin: 30px 0 20px 0;
+            padding-left: 25px;
+            border-left: 5px solid #e74c3c;
+        }
+
+        .section h4 {
+            color: #2c3e50;
+            font-size: 1.4em;
+            margin: 25px 0 15px 0;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            border-left: 5px solid #3498db;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+
+        .code-block::before {
+            content: 'SQL';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #3498db;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border-left: 5px solid #e74c3c;
+        }
+
+        .problem {
+            background: #ffe6e6;
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .problem h5 {
+            color: #c0392b;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .solution {
+            background: #e6ffe6;
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .solution h5 {
+            color: #1e8449;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 25px 0;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 0.95em;
+        }
+
+        th, td {
+            padding: 15px 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tr:hover {
+            background: #e3f2fd;
+            transition: background-color 0.3s ease;
+        }
+
+        .step-by-step {
+            background: #f8f9fa;
+            border: 2px solid #17a2b8;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .step-by-step h4 {
+            color: #17a2b8;
+            background: none;
+            border: none;
+            padding: 0;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .step {
+            background: white;
+            border-left: 4px solid #17a2b8;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .step-number {
+            background: #17a2b8;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .before, .after {
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid;
+        }
+
+        .before {
+            background: #fff5f5;
+            border-color: #e53e3e;
+        }
+
+        .after {
+            background: #f0fff4;
+            border-color: #38a169;
+        }
+
+        .before h5, .after h5 {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .benefit-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+
+        .benefit-card h4 {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            background: none;
+            border: none;
+            padding: 0;
+            color: white;
+        }
+
+        .example-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+        }
+
+        .flow-step {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 25px;
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 8px 20px rgba(238, 90, 36, 0.4);
+            transition: transform 0.3s ease;
+        }
+
+        .flow-step:hover {
+            transform: scale(1.1);
+        }
+
+        .arrow {
+            font-size: 2.5em;
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .detailed-example {
+            background: #f8f9fa;
+            border: 2px solid #6c757d;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .detailed-example h4 {
+            color: #495057;
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+            margin-bottom: 20px;
+        }
+
+        .table-example {
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .table-title {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .nav ul {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .section {
+                padding: 25px;
+            }
+            
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            
+            .example-flow {
+                flex-direction: column;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px;
+            background: #2c3e50;
+            color: white;
+            border-radius: 15px;
+            margin-top: 40px;
+        }
+
+        .toc {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .toc h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            border: none;
+            padding: 0;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .toc li::before {
+            content: "▶";
+            color: #3498db;
+            position: absolute;
+            left: 0;
+        }
+
+        .toc a {
+            color: #495057;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .toc a:hover {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .warning h5 {
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .info h5 {
+            color: #0c5460;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🗄️ Normalización de Bases de Datos</h1>
+            <p>Guía Completa y Detallada con SQL Server - Conceptos, Ejemplos y Casos Prácticos</p>
+        </header>
+
+        <!-- Tabla de Contenidos -->
+        <div class="toc">
+            <h3>📋 Tabla de Contenidos</h3>
+            <ul>
+                <li><a href="#concepto">¿Qué es la Normalización?</a></li>
+                <li><a href="#importancia">¿Por qué es Importante?</a></li>
+                <li><a href="#problemas">Problemas que Resuelve</a></li>
+                <li><a href="#primera-forma">Primera Forma Normal (1FN) - Paso a Paso</a></li>
+                <li><a href="#segunda-forma">Segunda Forma Normal (2FN) - Paso a Paso</a></li>
+                <li><a href="#tercera-forma">Tercera Forma Normal (3FN) - Paso a Paso</a></li>
+                <li><a href="#ejemplo-completo">Ejemplo Completo: Sistema de Biblioteca</a></li>
+                <li><a href="#beneficios">Beneficios y Consideraciones</a></li>
+                <li><a href="#mejores-practicas">Mejores Prácticas</a></li>
+            </ul>
+        </div>
+
+        <nav class="nav">
+            <ul>
+                <li><a href="#concepto">Concepto</a></li>
+                <li><a href="#primera-forma">1FN</a></li>
+                <li><a href="#segunda-forma">2FN</a></li>
+                <li><a href="#tercera-forma">3FN</a></li>
+                <li><a href="#ejemplo-completo">Ejemplo Completo</a></li>
+                <li><a href="#beneficios">Beneficios</a></li>
+            </ul>
+        </nav>
+
+        <section id="concepto" class="section">
+            <h2>🎯 ¿Qué es la Normalización?</h2>
+            <div class="highlight">
+                <p><strong>La normalización</strong> es un proceso sistemático de organización de datos en una base de datos relacional que tiene como objetivo eliminar la redundancia de información y asegurar la integridad de los datos. Este proceso se realiza aplicando una serie de reglas llamadas "formas normales".</p>
+            </div>
+
+            <div class="info">
+                <h5>💡 Definición Técnica</h5>
+                <p>La normalización es el proceso de estructurar una base de datos relacional de acuerdo con una serie de formas normales para reducir la redundancia de datos y mejorar la integridad de los datos.</p>
+            </div>
+            
+            <div class="example-flow">
+                <div class="flow-step">Datos<br>Desordenados</div>
+                <div class="arrow">→</div>
+                <div class="flow-step">1FN</div>
+                <div class="arrow">→</div>
+                <div class="flow-step">2FN</div>
+                <div class="arrow">→</div>
+                <div class="flow-step">3FN</div>
+                <div class="arrow">→</div>
+                <div class="flow-step">BD<br>Normalizada</div>
+            </div>
+
+            <h3>🔧 Conceptos Fundamentales</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Concepto</th>
+                            <th>Definición</th>
+                            <th>Ejemplo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Redundancia</strong></td>
+                            <td>Información duplicada innecesariamente</td>
+                            <td>Nombre del cliente repetido en cada pedido</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dependencia Funcional</strong></td>
+                            <td>Un atributo depende únicamente de otro</td>
+                            <td>NombreCliente depende de IDCliente</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Clave Primaria</strong></td>
+                            <td>Atributo que identifica únicamente cada registro</td>
+                            <td>ID_Empleado, ID_Producto</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Atomicidad</strong></td>
+                            <td>Cada celda contiene un valor indivisible</td>
+                            <td>Un teléfono por celda, no "123-456, 789-012"</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="importancia" class="section">
+            <h2>⚡ ¿Por qué es Importante la Normalización?</h2>
+            
+            <div class="benefits">
+                <div class="benefit-card">
+                    <h4>🎯 Integridad de Datos</h4>
+                    <p>Garantiza que los datos sean consistentes y precisos en toda la base de datos</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>💾 Eficiencia de Almacenamiento</h4>
+                    <p>Reduce significativamente el espacio necesario eliminando duplicaciones</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🔄 Mantenimiento Simplificado</h4>
+                    <p>Facilita las actualizaciones y modificaciones de la estructura</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🛡️ Prevención de Anomalías</h4>
+                    <p>Evita errores en operaciones de inserción, actualización y eliminación</p>
+                </div>
+            </div>
+
+            <div class="warning">
+                <h5>⚠️ Importante</h5>
+                <p>Una base de datos mal normalizada puede llevar a inconsistencias graves, pérdida de datos y dificultades de mantenimiento que se agravan con el tiempo y el crecimiento de la información.</p>
+            </div>
+        </section>
+
+        <section id="problemas" class="section">
+            <h2>❌ Problemas que Resuelve la Normalización</h2>
+            
+            <h3>📊 Ejemplo de Tabla Sin Normalizar</h3>
+            <div class="code-block">
+-- Tabla problemática: VENTAS (Sin normalizar)
+CREATE TABLE Ventas_Problematica (
+    ID_Venta INT,
+    Fecha_Venta DATE,
+    ID_Cliente INT,
+    Nombre_Cliente VARCHAR(100),
+    Direccion_Cliente VARCHAR(200),
+    Telefono_Cliente VARCHAR(20),
+    Email_Cliente VARCHAR(100),
+    ID_Producto INT,
+    Nombre_Producto VARCHAR(100),
+    Categoria_Producto VARCHAR(50),
+    Precio_Unitario DECIMAL(10,2),
+    Cantidad_Vendida INT,
+    ID_Vendedor INT,
+    Nombre_Vendedor VARCHAR(100),
+    Sucursal_Vendedor VARCHAR(100)
+);
+            </div>
+
+            <div class="table-container">
+                <div class="table-title">Ejemplo de datos en la tabla problemática:</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID_Venta</th>
+                            <th>Nombre_Cliente</th>
+                            <th>Telefono_Cliente</th>
+                            <th>Nombre_Producto</th>
+                            <th>Precio_Unitario</th>
+                            <th>Nombre_Vendedor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>001</td>
+                            <td>Juan Pérez</td>
+                            <td>123-456-789</td>
+                            <td>Laptop HP</td>
+                            <td>$1,200.00</td>
+                            <td>Ana García</td>
+                        </tr>
+                        <tr>
+                            <td>002</td>
+                            <td>Juan Pérez</td>
+                            <td>123-456-789</td>
+                            <td>Mouse Inalámbrico</td>
+                            <td>$25.00</td>
+                            <td>Ana García</td>
+                        </tr>
+                        <tr>
+                            <td>003</td>
+                            <td>María López</td>
+                            <td>987-654-321</td>
+                            <td>Laptop HP</td>
+                            <td>$1,200.00</td>
+                            <td>Carlos Ruiz</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🚨 Anomalías Identificadas</h3>
+            
+            <div class="problem">
+                <h5>🔄 Anomalía de Redundancia</h5>
+                <p><strong>Problema:</strong> Los datos de Juan Pérez se repiten en múltiples ventas.</p>
+                <p><strong>Consecuencia:</strong> Desperdicio de espacio y riesgo de inconsistencias.</p>
+                <div class="code-block">
+-- Si Juan Pérez aparece en 50 ventas, sus datos se almacenan 50 veces
+-- Esto multiplica el espacio necesario innecesariamente
+                </div>
+            </div>
+
+            <div class="problem">
+                <h5>✏️ Anomalía de Actualización</h5>
+                <p><strong>Problema:</strong> Si Juan Pérez cambia su teléfono, hay que actualizar TODAS las filas donde aparece.</p>
+                <p><strong>Consecuencia:</strong> Proceso lento y propenso a errores, datos inconsistentes.</p>
+                <div class="code-block">
+-- Actualización problemática
+UPDATE Ventas_Problematica 
+SET Telefono_Cliente = '555-111-222' 
+WHERE Nombre_Cliente = 'Juan Pérez';
+-- ¿Qué pasa si olvidamos actualizar alguna fila?
+                </div>
+            </div>
+
+            <div class="problem">
+                <h5>➕ Anomalía de Inserción</h5>
+                <p><strong>Problema:</strong> No puedes agregar un nuevo cliente a la base de datos sin que haga una compra.</p>
+                <p><strong>Consecuencia:</strong> Pérdida de flexibilidad del sistema.</p>
+                <div class="code-block">
+-- IMPOSIBLE hacer esto sin una venta:
+INSERT INTO Ventas_Problematica (ID_Cliente, Nombre_Cliente, Telefono_Cliente) 
+VALUES (100, 'Cliente Nuevo', '999-888-777');
+-- Error: Faltan campos obligatorios de venta
+                </div>
+            </div>
+
+            <div class="problem">
+                <h5>🗑️ Anomalía de Eliminación</h5>
+                <p><strong>Problema:</strong> Si eliminas la última venta de un cliente, pierdes toda su información.</p>
+                <p><strong>Consecuencia:</strong> Pérdida accidental de datos importantes.</p>
+                <div class="code-block">
+-- Si eliminas la única venta de un cliente:
+DELETE FROM Ventas_Problematica WHERE ID_Venta = 003;
+-- Has perdido toda la información de María López
+                </div>
+            </div>
+        </section>
+
+        <section id="primera-forma" class="section">
+            <h2>1️⃣ Primera Forma Normal (1FN) - Paso a Paso</h2>
+            
+            <div class="highlight">
+                <h3>📋 Regla de la 1FN</h3>
+                <p><strong>Una tabla está en Primera Forma Normal si:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Cada celda contiene un valor atómico (indivisible)</li>
+                    <li>No existen grupos repetitivos de columnas</li>
+                    <li>Cada columna tiene un nombre único</li>
+                    <li>El orden de las filas y columnas no importa</li>
+                </ul>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔍 Ejemplo Detallado: Sistema de Empleados</h4>
+                
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Identificar la violación de 1FN:</strong>
+                    <div class="table-container" style="margin-top: 15px;">
+                        <div class="table-title">❌ Tabla que VIOLA 1FN:</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID_Empleado</th>
+                                    <th>Nombre</th>
+                                    <th>Teléfonos</th>
+                                    <th>Habilidades</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Juan Pérez</td>
+                                    <td>123-456-789, 987-654-321</td>
+                                    <td>Java, Python, SQL</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Ana García</td>
+                                    <td>555-111-222</td>
+                                    <td>C#, JavaScript</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Luis Martín</td>
+                                    <td>777-888-999, 111-222-333, 444-555-666</td>
+                                    <td>PHP, MySQL, HTML, CSS</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="problem">
+                        <h5>🚨 Problemas Identificados:</h5>
+                        <ul>
+                            <li><strong>Teléfonos:</strong> Múltiples valores separados por comas</li>
+                            <li><strong>Habilidades:</strong> Lista de elementos en una sola celda</li>
+                            <li><strong>Consecuencia:</strong> Imposible hacer búsquedas eficientes o consultas específicas</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Analizar cada columna problemática:</strong>
+                    <div class="comparison">
+                        <div class="before">
+                            <h5>❌ Antes (Violación)</h5>
+                            <div class="code-block">
+-- Consulta problemática:
+SELECT * FROM Empleados 
+WHERE Teléfonos LIKE '%123-456-789%';
+-- No es eficiente ni confiable
+                            </div>
+                        </div>
+                        <div class="after">
+                            <h5>✅ Después (1FN)</h5>
+                            <div class="code-block">
+-- Consulta eficiente:
+SELECT e.* FROM Empleados e
+JOIN Telefonos_Empleados te ON e.ID_Empleado = te.ID_Empleado
+WHERE te.Telefono = '123-456-789';
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Crear la estructura normalizada en 1FN:</strong>
+                    <div class="code-block">
+-- Tabla principal de empleados
+CREATE TABLE Empleados (
+    ID_Empleado INT PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL
+);
+
+-- Tabla separada para teléfonos
+CREATE TABLE Telefonos_Empleados (
+    ID_Telefono INT PRIMARY KEY IDENTITY(1,1),
+    ID_Empleado INT NOT NULL,
+    Telefono VARCHAR(20) NOT NULL,
+    Tipo_Telefono VARCHAR(20), -- 'Móvil', 'Casa', 'Trabajo'
+    FOREIGN KEY (ID_Empleado) REFERENCES Empleados(ID_Empleado)
+);
+
+-- Tabla separada para habilidades
+CREATE TABLE Habilidades_Empleados (
+    ID_Habilidad INT PRIMARY KEY IDENTITY(1,1),
+    ID_Empleado INT NOT NULL,
+    Habilidad VARCHAR(50) NOT NULL,
+    Nivel VARCHAR(20), -- 'Básico', 'Intermedio', 'Avanzado'
+    FOREIGN KEY (ID_Empleado) REFERENCES Empleados(ID_Empleado)
+);
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <strong>Insertar los datos normalizados:</strong>
+                    <div class="code-block">
+-- Insertar empleados
+INSERT INTO Empleados (ID_Empleado, Nombre) VALUES
+(1, 'Juan Pérez'),
+(2, 'Ana García'),
+(3, 'Luis Martín');
+
+-- Insertar teléfonos
+INSERT INTO Telefonos_Empleados (ID_Empleado, Telefono, Tipo_Telefono) VALUES
+(1, '123-456-789', 'Móvil'),
+(1, '987-654-321', 'Casa'),
+(2, '555-111-222', 'Móvil'),
+(3, '777-888-999', 'Móvil'),
+(3, '111-222-333', 'Casa'),
+(3, '444-555-666', 'Trabajo');
+
+-- Insertar habilidades
+INSERT INTO Habilidades_Empleados (ID_Empleado, Habilidad, Nivel) VALUES
+(1, 'Java', 'Avanzado'),
+(1, 'Python', 'Intermedio'),
+(1, 'SQL', 'Avanzado'),
+(2, 'C#', 'Avanzado'),
+(2, 'JavaScript', 'Intermedio'),
+(3, 'PHP', 'Avanzado'),
+(3, 'MySQL', 'Avanzado'),
+(3, 'HTML', 'Intermedio'),
+(3, 'CSS', 'Intermedio');
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <strong>Verificar el resultado en 1FN:</strong>
+                    <div class="table-container" style="margin-top: 15px;">
+                        <div class="table-title">✅ Resultado: Tablas en 1FN</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th colspan="2">Empleados</th>
+                                    <th colspan="3">Telefonos_Empleados</th>
+                                    <th colspan="3">Habilidades_Empleados</th>
+                                </tr>
+                                <tr style="background: #e9ecef;">
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>ID_Emp</th>
+                                    <th>Teléfono</th>
+                                    <th>Tipo</th>
+                                    <th>ID_Emp</th>
+                                    <th>Habilidad</th>
+                                    <th>Nivel</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Juan Pérez</td>
+                                    <td>1</td>
+                                    <td>123-456-789</td>
+                                    <td>Móvil</td>
+                                    <td>1</td>
+                                    <td>Java</td>
+                                    <td>Avanzado</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Ana García</td>
+                                    <td>1</td>
+                                    <td>987-654-321</td>
+                                    <td>Casa</td>
+                                    <td>1</td>
+                                    <td>Python</td>
+                                    <td>Intermedio</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Luis Martín</td>
+                                    <td>2</td>
+                                    <td>555-111-222</td>
+                                    <td>Móvil</td>
+                                    <td>2</td>
+                                    <td>C#</td>
+                                    <td>Avanzado</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="solution">
+                <h5>✅ Beneficios Obtenidos con 1FN</h5>
+                <ul>
+                    <li><strong>Búsquedas precisas:</strong> Podemos encontrar empleados por teléfono específico</li>
+                    <li><strong>Filtros por habilidad:</strong> Búsqueda de empleados con habilidades específicas</li>
+                    <li><strong>Flexibilidad:</strong> Agregar/quitar teléfonos y habilidades independientemente</li>
+                    <li><strong>Integridad:</strong> Cada dato está en su lugar correcto</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="segunda-forma" class="section">
+            <h2>2️⃣ Segunda Forma Normal (2FN) - Paso a Paso</h2>
+            
+            <div class="highlight">
+                <h3>📋 Regla de la 2FN</h3>
+                <p><strong>Una tabla está en Segunda Forma Normal si:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Ya está en Primera Forma Normal (1FN)</li>
+                    <li>Todos los atributos no clave dependen completamente de la clave primaria</li>
+                    <li>No existen dependencias parciales (cuando un atributo depende solo de parte de una clave compuesta)</li>
+                </ul>
+            </div>
+
+            <div class="info">
+                <h5>🔑 Concepto Clave: Dependencia Funcional Completa</h5>
+                <p>Un atributo depende funcionalmente de manera completa de la clave primaria cuando no puede determinarse por ningún subconjunto de esa clave.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔍 Ejemplo Detallado: Sistema de Pedidos</h4>
+                
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Identificar la violación de 2FN:</strong>
+                    <div class="table-container" style="margin-top: 15px;">
+                        <div class="table-title">❌ Tabla que VIOLA 2FN (pero está en 1FN):</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID_Pedido</th>
+                                    <th>ID_Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio_Unitario</th>
+                                    <th>Nombre_Producto</th>
+                                    <th>Categoria_Producto</th>
+                                    <th>Fecha_Pedido</th>
+                                    <th>Cliente_Pedido</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1001</td>
+                                    <td>501</td>
+                                    <td>2</td>
+                                    <td>$25.00</td>
+                                    <td>Mouse Inalámbrico</td>
+                                    <td>Accesorios</td>
+                                    <td>2024-01-15</td>
+                                    <td>Juan Pérez</td>
+                                </tr>
+                                <tr>
+                                    <td>1001</td>
+                                    <td>502</td>
+                                    <td>1</td>
+                                    <td>$1200.00</td>
+                                    <td>Laptop HP</td>
+                                    <td>Computadoras</td>
+                                    <td>2024-01-15</td>
+                                    <td>Juan Pérez</td>
+                                </tr>
+                                <tr>
+                                    <td>1002</td>
+                                    <td>501</td>
+                                    <td>1</td>
+                                    <td>$25.00</td>
+                                    <td>Mouse Inalámbrico</td>
+                                    <td>Accesorios</td>
+                                    <td>2024-01-16</td>
+                                    <td>Ana García</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p><strong>Clave Primaria Compuesta:</strong> (ID_Pedido, ID_Producto)</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Analizar las dependencias funcionales:</strong>
+                    <div class="detailed-example">
+                        <h4>🔍 Análisis de Dependencias</h4>
+                        <div class="problem">
+                            <h5>❌ Dependencias Parciales Detectadas:</h5>
+                            <ul>
+                                <li><strong>Nombre_Producto → ID_Producto</strong> (no depende de ID_Pedido)</li>
+                                <li><strong>Categoria_Producto → ID_Producto</strong> (no depende de ID_Pedido)</li>
+                                <li><strong>Precio_Unitario → ID_Producto</strong> (no depende de ID_Pedido)</li>
+                                <li><strong>Fecha_Pedido → ID_Pedido</strong> (no depende de ID_Producto)</li>
+                                <li><strong>Cliente_Pedido → ID_Pedido</strong> (no depende de ID_Producto)</li>
+                            </ul>
+                        </div>
+                        <div class="solution">
+                            <h5>✅ Dependencias Completas:</h5>
+                            <ul>
+                                <li><strong>Cantidad → (ID_Pedido, ID_Producto)</strong> ✓ Correcto</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Problemas causados por la violación de 2FN:</strong>
+                    <div class="problem">
+                        <h5>🚨 Consecuencias de las Dependencias Parciales:</h5>
+                        <ul>
+                            <li><strong>Redundancia:</strong> El nombre "Mouse Inalámbrico" se repite en cada pedido que lo incluye</li>
+                            <li><strong>Anomalías de actualización:</strong> Si cambia el precio del producto, hay que actualizarlo en múltiples pedidos</li>
+                            <li><strong>Inconsistencias:</strong> El mismo producto podría tener precios diferentes en distintos pedidos</li>
+                            <li><strong>Desperdicio de espacio:</strong> Información del producto duplicada innecesariamente</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <strong>Crear la estructura normalizada en 2FN:</strong>
+                    <div class="code-block">
+-- Tabla de Productos (datos que dependen solo de ID_Producto)
+CREATE TABLE Productos (
+    ID_Producto INT PRIMARY KEY,
+    Nombre_Producto VARCHAR(100) NOT NULL,
+    Categoria_Producto VARCHAR(50) NOT NULL,
+    Precio_Unitario DECIMAL(10,2) NOT NULL,
+    Descripcion VARCHAR(500),
+    Stock_Disponible INT DEFAULT 0
+);
+
+-- Tabla de Pedidos (datos que dependen solo de ID_Pedido)
+CREATE TABLE Pedidos (
+    ID_Pedido INT PRIMARY KEY,
+    Fecha_Pedido DATE NOT NULL,
+    Cliente_Pedido VARCHAR(100) NOT NULL,
+    Estado_Pedido VARCHAR(20) DEFAULT 'Pendiente',
+    Total_Pedido DECIMAL(10,2)
+);
+
+-- Tabla de Detalle de Pedidos (datos que dependen de AMBAS claves)
+CREATE TABLE Detalle_Pedidos (
+    ID_Pedido INT,
+    ID_Producto INT,
+    Cantidad INT NOT NULL,
+    Precio_Aplicado DECIMAL(10,2) NOT NULL, -- Precio al momento del pedido
+    Descuento DECIMAL(5,2) DEFAULT 0,
+    PRIMARY KEY (ID_Pedido, ID_Producto),
+    FOREIGN KEY (ID_Pedido) REFERENCES Pedidos(ID_Pedido),
+    FOREIGN KEY (ID_Producto) REFERENCES Productos(ID_Producto)
+);
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <strong>Insertar datos en la estructura 2FN:</strong>
+                    <div class="code-block">
+-- Insertar productos
+INSERT INTO Productos (ID_Producto, Nombre_Producto, Categoria_Producto, Precio_Unitario, Stock_Disponible) VALUES
+(501, 'Mouse Inalámbrico', 'Accesorios', 25.00, 150),
+(502, 'Laptop HP', 'Computadoras', 1200.00, 25),
+(503, 'Teclado Mecánico', 'Accesorios', 85.00, 75);
+
+-- Insertar pedidos
+INSERT INTO Pedidos (ID_Pedido, Fecha_Pedido, Cliente_Pedido, Estado_Pedido) VALUES
+(1001, '2024-01-15', 'Juan Pérez', 'Completado'),
+(1002, '2024-01-16', 'Ana García', 'Pendiente'),
+(1003, '2024-01-17', 'Carlos López', 'En Proceso');
+
+-- Insertar detalles de pedidos
+INSERT INTO Detalle_Pedidos (ID_Pedido, ID_Producto, Cantidad, Precio_Aplicado) VALUES
+(1001, 501, 2, 25.00),
+(1001, 502, 1, 1200.00),
+(1002, 501, 1, 25.00),
+(1003, 502, 1, 1200.00),
+(1003, 503, 2, 85.00);
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <strong>Consultas mejoradas con 2FN:</strong>
+                    <div class="comparison">
+                        <div class="before">
+                            <h5>❌ Antes (Consulta problemática)</h5>
+                            <div class="code-block">
+-- Actualización problemática en tabla no normalizada
+UPDATE Pedidos_Productos 
+SET Precio_Unitario = 30.00 
+WHERE Nombre_Producto = 'Mouse Inalámbrico';
+-- Afecta pedidos pasados incorrectamente
+                            </div>
+                        </div>
+                        <div class="after">
+                            <h5>✅ Después (Consulta correcta)</h5>
+                            <div class="code-block">
+-- Actualización correcta en estructura 2FN
+UPDATE Productos 
+SET Precio_Unitario = 30.00 
+WHERE ID_Producto = 501;
+-- Los pedidos anteriores mantienen su precio histórico
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="solution">
+                <h5>✅ Beneficios Obtenidos con 2FN</h5>
+                <ul>
+                    <li><strong>Eliminación de redundancia:</strong> Datos del producto se almacenan una sola vez</li>
+                    <li><strong>Integridad histórica:</strong> Los precios en pedidos anteriores se mantienen</li>
+                    <li><strong>Mantenimiento simplificado:</strong> Cambios en productos no afectan pedidos existentes</li>
+                    <li><strong>Eficiencia de almacenamiento:</strong> Reducción significativa de espacio</li>
+                    <li><strong>Consistencia:</strong> Un producto tiene una sola definición en la base</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="tercera-forma" class="section">
+            <h2>3️⃣ Tercera Forma Normal (3FN) - Paso a Paso</h2>
+            
+            <div class="highlight">
+                <h3>📋 Regla de la 3FN</h3>
+                <p><strong>Una tabla está en Tercera Forma Normal si:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Ya está en Segunda Forma Normal (2FN)</li>
+                    <li>No existen dependencias transitivas</li>
+                    <li>Todos los atributos no clave dependen directamente de la clave primaria</li>
+                </ul>
+            </div>
+
+            <div class="info">
+                <h5>🔗 Concepto Clave: Dependencia Transitiva</h5>
+                <p><strong>Dependencia Transitiva:</strong> Cuando un atributo no clave depende de otro atributo no clave, en lugar de depender directamente de la clave primaria.</p>
+                <p><strong>Fórmula:</strong> A → B → C (donde A es clave primaria, B y C son no clave)</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔍 Ejemplo Detallado: Sistema de Empleados y Departamentos</h4>
+                
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Identificar la violación de 3FN:</strong>
+                    <div class="table-container" style="margin-top: 15px;">
+                        <div class="table-title">❌ Tabla que VIOLA 3FN (pero está en 2FN):</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID_Empleado</th>
+                                    <th>Nombre_Empleado</th>
+                                    <th>Salario</th>
+                                    <th>ID_Departamento</th>
+                                    <th>Nombre_Departamento</th>
+                                    <th>Ubicacion_Departamento</th>
+                                    <th>Presupuesto_Departamento</th>
+                                    <th>Gerente_Departamento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>101</td>
+                                    <td>Juan Pérez</td>
+                                    <td>$50,000</td>
+                                    <td>10</td>
+                                    <td>Desarrollo</td>
+                                    <td>Edificio A, Piso 3</td>
+                                    <td>$500,000</td>
+                                    <td>María González</td>
+                                </tr>
+                                <tr>
+                                    <td>102</td>
+                                    <td>Ana García</td>
+                                    <td>$55,000</td>
+                                    <td>10</td>
+                                    <td>Desarrollo</td>
+                                    <td>Edificio A, Piso 3</td>
+                                    <td>$500,000</td>
+                                    <td>María González</td>
+                                </tr>
+                                <tr>
+                                    <td>103</td>
+                                    <td>Carlos López</td>
+                                    <td>$48,000</td>
+                                    <td>20</td>
+                                    <td>Marketing</td>
+                                    <td>Edificio B, Piso 1</td>
+                                    <td>$300,000</td>
+                                    <td>Luis Martín</td>
+                                </tr>
+                                <tr>
+                                    <td>104</td>
+                                    <td>Sandra Ruiz</td>
+                                    <td>$52,000</td>
+                                    <td>20</td>
+                                    <td>Marketing</td>
+                                    <td>Edificio B, Piso 1</td>
+                                    <td>$300,000</td>
+                                    <td>Luis Martín</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p><strong>Clave Primaria:</strong> ID_Empleado</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Identificar las dependencias transitivas:</strong>
+                    <div class="detailed-example">
+                        <h4>🔍 Análisis de Dependencias Transitivas</h4>
+                        <div class="problem">
+                            <h5>❌ Dependencias Transitivas Detectadas:</h5>
+                            <div class="code-block">
+-- Cadena de dependencias problemática:
+ID_Empleado → ID_Departamento → Nombre_Departamento
+ID_Empleado → ID_Departamento → Ubicacion_Departamento  
+ID_Empleado → ID_Departamento → Presupuesto_Departamento
+ID_Empleado → ID_Departamento → Gerente_Departamento
+
+-- Los datos del departamento NO dependen directamente de ID_Empleado
+-- Dependen de ID_Departamento (dependencia transitiva)
+                            </div>
+                        </div>
+                        <div class="solution">
+                            <h5>✅ Dependencias Directas (Correctas):</h5>
+                            <div class="code-block">
+-- Dependencias que SÍ son directas:
+ID_Empleado → Nombre_Empleado    ✓
+ID_Empleado → Salario            ✓  
+ID_Empleado → ID_Departamento    ✓
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Problemas causados por dependencias transitivas:</strong>
+                    <div class="problem">
+                        <h5>🚨 Consecuencias de las Dependencias Transitivas:</h5>
+                        <ul>
+                            <li><strong>Redundancia masiva:</strong> Datos del departamento "Desarrollo" se repiten para cada empleado</li>
+                            <li><strong>Anomalías de actualización:</strong> Si cambia el gerente del departamento, hay que actualizar TODOS los empleados</li>
+                            <li><strong>Anomalías de inserción:</strong> No puedes crear un departamento sin empleados</li>
+                            <li><strong>Anomalías de eliminación:</strong> Si eliminas el último empleado de un departamento, pierdes la información del departamento</li>
+                            <li><strong>Inconsistencias:</strong> Diferentes empleados podrían mostrar datos contradictorios del mismo departamento</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="warning">
+                        <h5>⚠️ Ejemplo de Problema Real</h5>
+                        <p>Si el departamento de "Desarrollo" cambia de ubicación, tendrías que actualizar potencialmente cientos de registros de empleados. Si olvidas actualizar uno, tendrás datos inconsistentes.</p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <strong>Crear la estructura normalizada en 3FN:</strong>
+                    <div class="code-block">
+-- Tabla de Departamentos (elimina dependencias transitivas)
+CREATE TABLE Departamentos (
+    ID_Departamento INT PRIMARY KEY,
+    Nombre_Departamento VARCHAR(100) NOT NULL,
+    Ubicacion_Departamento VARCHAR(200) NOT NULL,
+    Presupuesto_Departamento DECIMAL(12,2) NOT NULL,
+    Gerente_Departamento VARCHAR(100),
+    Telefono_Departamento VARCHAR(20),
+    Email_Departamento VARCHAR(100)
+);
+
+-- Tabla de Empleados (solo datos que dependen directamente del empleado)
+CREATE TABLE Empleados (
+    ID_Empleado INT PRIMARY KEY,
+    Nombre_Empleado VARCHAR(100) NOT NULL,
+    Salario DECIMAL(10,2) NOT NULL,
+    Fecha_Contratacion DATE,
+    Email_Empleado VARCHAR(100),
+    Telefono_Empleado VARCHAR(20),
+    ID_Departamento INT NOT NULL,
+    FOREIGN KEY (ID_Departamento) REFERENCES Departamentos(ID_Departamento)
+);
+
+-- Tabla adicional para historial de departamentos (opcional)
+CREATE TABLE Historial_Departamentos (
+    ID_Historial INT PRIMARY KEY IDENTITY(1,1),
+    ID_Empleado INT,
+    ID_Departamento INT,
+    Fecha_Inicio DATE,
+    Fecha_Fin DATE,
+    Puesto VARCHAR(100),
+    FOREIGN KEY (ID_Empleado) REFERENCES Empleados(ID_Empleado),
+    FOREIGN KEY (ID_Departamento) REFERENCES Departamentos(ID_Departamento)
+);
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <strong>Insertar datos en la estructura 3FN:</strong>
+                    <div class="code-block">
+-- Insertar departamentos (UNA VEZ para cada departamento)
+INSERT INTO Departamentos (ID_Departamento, Nombre_Departamento, Ubicacion_Departamento, 
+                          Presupuesto_Departamento, Gerente_Departamento) VALUES
+(10, 'Desarrollo', 'Edificio A, Piso 3', 500000.00, 'María González'),
+(20, 'Marketing', 'Edificio B, Piso 1', 300000.00, 'Luis Martín'),
+(30, 'Recursos Humanos', 'Edificio A, Piso 2', 200000.00, 'Carmen Vega'),
+(40, 'Ventas', 'Edificio C, Piso 1', 400000.00, 'Roberto Silva');
+
+-- Insertar empleados (solo referencia al departamento)
+INSERT INTO Empleados (ID_Empleado, Nombre_Empleado, Salario, Fecha_Contratacion, 
+                      Email_Empleado, ID_Departamento) VALUES
+(101, 'Juan Pérez', 50000.00, '2023-01-15', 'juan.perez@empresa.com', 10),
+(102, 'Ana García', 55000.00, '2023-02-20', 'ana.garcia@empresa.com', 10),
+(103, 'Carlos López', 48000.00, '2023-03-10', 'carlos.lopez@empresa.com', 20),
+(104, 'Sandra Ruiz', 52000.00, '2023-04-05', 'sandra.ruiz@empresa.com', 20),
+(105, 'Miguel Torres', 45000.00, '2023-05-12', 'miguel.torres@empresa.com', 30);
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <strong>Consultas mejoradas con 3FN:</strong>
+                    <div class="comparison">
+                        <div class="before">
+                            <h5>❌ Antes (Actualización problemática)</h5>
+                            <div class="code-block">
+-- Actualización problemática en tabla no normalizada
+UPDATE Empleados_Departamentos 
+SET Gerente_Departamento = 'Nuevo Gerente',
+    Ubicacion_Departamento = 'Nueva Ubicación'
+WHERE ID_Departamento = 10;
+-- Hay que actualizar TODOS los empleados del departamento
+                            </div>
+                        </div>
+                        <div class="after">
+                            <h5>✅ Después (Actualización eficiente)</h5>
+                            <div class="code-block">
+-- Actualización eficiente en estructura 3FN
+UPDATE Departamentos 
+SET Gerente_Departamento = 'Nuevo Gerente',
+    Ubicacion_Departamento = 'Nueva Ubicación'
+WHERE ID_Departamento = 10;
+-- Solo UNA actualización afecta a TODOS los empleados automáticamente
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">7</span>
+                    <strong>Consultas útiles en la estructura 3FN:</strong>
+                    <div class="code-block">
+-- Obtener empleados con información completa del departamento
+SELECT e.Nombre_Empleado, e.Salario, d.Nombre_Departamento, 
+       d.Ubicacion_Departamento, d.Gerente_Departamento
+FROM Empleados e
+INNER JOIN Departamentos d ON e.ID_Departamento = d.ID_Departamento;
+
+-- Calcular total de salarios por departamento
+SELECT d.Nombre_Departamento, 
+       COUNT(e.ID_Empleado) as Total_Empleados,
+       SUM(e.Salario) as Total_Salarios,
+       AVG(e.Salario) as Salario_Promedio
+FROM Departamentos d
+LEFT JOIN Empleados e ON d.ID_Departamento = e.ID_Departamento
+GROUP BY d.ID_Departamento, d.Nombre_Departamento;
+
+-- Buscar empleados por ubicación de departamento
+SELECT e.Nombre_Empleado, e.Email_Empleado
+FROM Empleados e
+INNER JOIN Departamentos d ON e.ID_Departamento = d.ID_Departamento
+WHERE d.Ubicacion_Departamento LIKE '%Edificio A%';
+                    </div>
+                </div>
+            </div>
+
+            <div class="solution">
+                <h5>✅ Beneficios Obtenidos con 3FN</h5>
+                <ul>
+                    <li><strong>Eliminación total de dependencias transitivas:</strong> Cada dato está en su lugar correcto</li>
+                    <li><strong>Actualizaciones centralizadas:</strong> Cambios en departamentos se reflejan automáticamente</li>
+                    <li><strong>Integridad referencial:</strong> Imposible tener datos inconsistentes entre empleados del mismo departamento</li>
+                    <li><strong>Flexibilidad máxima:</strong> Puedes gestionar departamentos independientemente de empleados</li>
+                    <li><strong>Mantenimiento simplificado:</strong> Cada cambio se hace en un solo lugar</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="ejemplo-completo" class="section">
+            <h2>📚 Ejemplo Completo: Sistema de Biblioteca</h2>
+            
+            <div class="highlight">
+                <h3>🎯 Caso de Estudio Completo</h3>
+                <p>Vamos a normalizar completamente un sistema de biblioteca desde una tabla desordenada hasta 3FN, aplicando todos los conceptos aprendidos paso a paso.</p>
+            </div>
+
+            <div class="step-by-step">
+                <h4>🔍 Situación Inicial: Biblioteca Municipal</h4>
+                
+                <div class="step">
+                    <span class="step-number">0</span>
+                    <strong>Tabla inicial completamente desordenada:</strong>
+                    <div class="table-container" style="margin-top: 15px;">
+                        <div class="table-title">❌ Tabla BIBLIOTECA_COMPLETA (Sin normalizar):</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID_Prestamo</th>
+                                    <th>Fecha_Prestamo</th>
+                                    <th>Fecha_Devolucion</th>
+                                    <th>Usuario_Info</th>
+                                    <th>Libros_Prestados</th>
+                                    <th>Autores</th>
+                                    <th>Categorias</th>
+                                    <th>ISBN_Libros</th>
+                                    <th>Bibliotecario</th>
+                                    <th>Sucursal_Info</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1001</td>
+                                    <td>2024-01-15</td>
+                                    <td>2024-02-15</td>
+                                    <td>Juan Pérez, juan@email.com, 123-456-789</td>
+                                    <td>El Quijote, Cien Años de Soledad</td>
+                                    <td>Miguel de Cervantes, Gabriel García Márquez</td>
+                                    <td>Clásicos, Literatura Latinoamericana</td>
+                                    <td>978-84-376-0494-7, 978-84-376-0123-4</td>
+                                    <td>Ana García</td>
+                                    <td>Sucursal Centro, Calle Principal 123, Tel: 555-0001</td>
+                                </tr>
+                                <tr>
+                                    <td>1002</td>
+                                    <td>2024-01-16</td>
+                                    <td>2024-02-16</td>
+                                    <td>María López, maria@email.com, 987-654-321</td>
+                                    <td>El Principito</td>
+                                    <td>Antoine de Saint-Exupéry</td>
+                                    <td>Literatura Infantil</td>
+                                    <td>978-84-376-0567-8</td>
+                                    <td>Carlos Ruiz</td>
+                                    <td>Sucursal Norte, Avenida Libertad 456, Tel: 555-0002</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="problem">
+                        <h5>🚨 Problemas Identificados:</h5>
+                        <ul>
+                            <li><strong>Viola 1FN:</strong> Múltiples valores en celdas (libros, autores, categorías)</li>
+                            <li><strong>Viola 2FN:</strong> Información de usuarios y sucursales no depende completamente de ID_Prestamo</li>
+                            <li><strong>Viola 3FN:</strong> Dependencias transitivas entre datos relacionados</li>
+                            <li><strong>Redundancia extrema:</strong> Información duplicada en múltiples lugares</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <strong>Aplicar Primera Forma Normal (1FN):</strong>
+                    <div class="code-block">
+-- Paso 1: Separar valores múltiples en tablas relacionadas
+CREATE TABLE Prestamos_1FN (
+    ID_Prestamo INT,
+    Fecha_Prestamo DATE,
+    Fecha_Devolucion DATE,
+    ID_Usuario INT,
+    Nombre_Usuario VARCHAR(100),
+    Email_Usuario VARCHAR(100),
+    Telefono_Usuario VARCHAR(20),
+    ID_Libro INT,
+    Titulo_Libro VARCHAR(200),
+    Autor_Libro VARCHAR(100),
+    Categoria_Libro VARCHAR(50),
+    ISBN_Libro VARCHAR(20),
+    Nombre_Bibliotecario VARCHAR(100),
+    Nombre_Sucursal VARCHAR(100),
+    Direccion_Sucursal VARCHAR(200),
+    Telefono_Sucursal VARCHAR(20)
+);
+                    </div>
+                    <div class="table-container" style="margin-top: 15px;">
+                        <div class="table-title">✅ Resultado 1FN - Valores Atómicos:</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID_Prestamo</th>
+                                    <th>ID_Usuario</th>
+                                    <th>Nombre_Usuario</th>
+                                    <th>ID_Libro</th>
+                                    <th>Titulo_Libro</th>
+                                    <th>Autor_Libro</th>
+                                    <th>Nombre_Sucursal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1001</td>
+                                    <td>501</td>
+                                    <td>Juan Pérez</td>
+                                    <td>2001</td>
+                                    <td>El Quijote</td>
+                                    <td>Miguel de Cervantes</td>
+                                    <td>Sucursal Centro</td>
+                                </tr>
+                                <tr>
+                                    <td>1001</td>
+                                    <td>501</td>
+                                    <td>Juan Pérez</td>
+                                    <td>2002</td>
+                                    <td>Cien Años de Soledad</td>
+                                    <td>Gabriel García Márquez</td>
+                                    <td>Sucursal Centro</td>
+                                </tr>
+                                <tr>
+                                    <td>1002</td>
+                                    <td>502</td>
+                                    <td>María López</td>
+                                    <td>2003</td>
+                                    <td>El Principito</td>
+                                    <td>Antoine de Saint-Exupéry</td>
+                                    <td>Sucursal Norte</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <strong>Aplicar Segunda Forma Normal (2FN):</strong>
+                    <div class="code-block">
+-- Paso 2: Eliminar dependencias parciales
+-- Identificar clave primaria compuesta: (ID_Prestamo, ID_Libro)
+
+-- Tabla para datos que dependen solo de ID_Usuario
+CREATE TABLE Usuarios (
+    ID_Usuario INT PRIMARY KEY,
+    Nombre_Usuario VARCHAR(100) NOT NULL,
+    Email_Usuario VARCHAR(100) UNIQUE,
+    Telefono_Usuario VARCHAR(20),
+    Direccion_Usuario VARCHAR(200),
+    Fecha_Registro DATE DEFAULT GETDATE(),
+    Estado_Usuario VARCHAR(20) DEFAULT 'Activo'
+);
+
+-- Tabla para datos que dependen solo de ID_Libro
+CREATE TABLE Libros (
+    ID_Libro INT PRIMARY KEY,
+    Titulo_Libro VARCHAR(200) NOT NULL,
+    ISBN_Libro VARCHAR(20) UNIQUE,
+    Año_Publicacion INT,
+    Numero_Paginas INT,
+    Estado_Libro VARCHAR(20) DEFAULT 'Disponible',
+    Ubicacion_Estante VARCHAR(50)
+);
+
+-- Tabla para datos que dependen solo de ID_Prestamo
+CREATE TABLE Prestamos (
+    ID_Prestamo INT PRIMARY KEY,
+    Fecha_Prestamo DATE NOT NULL,
+    Fecha_Devolucion_Programada DATE NOT NULL,
+    Fecha_Devolucion_Real DATE,
+    ID_Usuario INT NOT NULL,
+    ID_Bibliotecario INT,
+    ID_Sucursal INT,
+    Estado_Prestamo VARCHAR(20) DEFAULT 'Activo',
+    Notas TEXT,
+    FOREIGN KEY (ID_Usuario) REFERENCES Usuarios(ID_Usuario)
+);
+
+-- Tabla para la relación muchos a muchos (depende de ambas claves)
+CREATE TABLE Detalle_Prestamos (
+    ID_Prestamo INT,
+    ID_Libro INT,
+    Fecha_Prestamo_Libro DATE,
+    Renovaciones INT DEFAULT 0,
+    PRIMARY KEY (ID_Prestamo, ID_Libro),
+    FOREIGN KEY (ID_Prestamo) REFERENCES Prestamos(ID_Prestamo),
+    FOREIGN KEY (ID_Libro) REFERENCES Libros(ID_Libro)
+);
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <strong>Aplicar Tercera Forma Normal (3FN):</strong>
+                    <div class="code-block">
+-- Paso 3: Eliminar dependencias transitivas
+
+-- Tabla de Autores (elimina dependencia transitiva)
+CREATE TABLE Autores (
+    ID_Autor INT PRIMARY KEY,
+    Nombre_Autor VARCHAR(100) NOT NULL,
+    Apellido_Autor VARCHAR(100) NOT NULL,
+    Nacionalidad VARCHAR(50),
+    Fecha_Nacimiento DATE,
+    Fecha_Muerte DATE,
+    Biografia TEXT
+);
+
+-- Tabla de Categorías (elimina dependencia transitiva)
+CREATE TABLE Categorias (
+    ID_Categoria INT PRIMARY KEY,
+    Nombre_Categoria VARCHAR(50) NOT NULL,
+    Descripcion_Categoria TEXT,
+    Edad_Minima_Recomendada INT,
+    Seccion_Biblioteca VARCHAR(50)
+);
+
+-- Tabla de Sucursales (elimina dependencia transitiva)
+CREATE TABLE Sucursales (
+    ID_Sucursal INT PRIMARY KEY,
+    Nombre_Sucursal VARCHAR(100) NOT NULL,
+    Direccion_Sucursal VARCHAR(200) NOT NULL,
+    Telefono_Sucursal VARCHAR(20),
+    Email_Sucursal VARCHAR(100),
+    Horario_Apertura TIME,
+    Horario_Cierre TIME,
+    Capacidad_Maxima INT
+);
+
+-- Tabla de Bibliotecarios (elimina dependencia transitiva)
+CREATE TABLE Bibliotecarios (
+    ID_Bibliotecario INT PRIMARY KEY,
+    Nombre_Bibliotecario VARCHAR(100) NOT NULL,
+    Email_Bibliotecario VARCHAR(100),
+    Telefono_Bibliotecario VARCHAR(20),
+    ID_Sucursal INT,
+    Fecha_Contratacion DATE,
+    Turno VARCHAR(20),
+    FOREIGN KEY (ID_Sucursal) REFERENCES Sucursales(ID_Sucursal)
+);
+
+-- Actualizar tabla de Libros con referencias
+ALTER TABLE Libros ADD ID_Autor INT;
+ALTER TABLE Libros ADD ID_Categoria INT;
+ALTER TABLE Libros ADD FOREIGN KEY (ID_Autor) REFERENCES Autores(ID_Autor);
+ALTER TABLE Libros ADD FOREIGN KEY (ID_Categoria) REFERENCES Categorias(ID_Categoria);
+
+-- Actualizar tabla de Prestamos con referencias
+ALTER TABLE Prestamos ADD FOREIGN KEY (ID_Bibliotecario) REFERENCES Bibliotecarios(ID_Bibliotecario);
+ALTER TABLE Prestamos ADD FOREIGN KEY (ID_Sucursal) REFERENCES Sucursales(ID_Sucursal);
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <strong>Estructura Final Normalizada (3FN):</strong>
+                    <div class="detailed-example">
+                        <h4>🏗️ Esquema Final de la Base de Datos</h4>
+                        <div class="table-container">
+                            <div class="table-title">📋 Resumen de Tablas Normalizadas:</div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tabla</th>
+                                        <th>Propósito</th>
+                                        <th>Campos Principales</th>
+                                        <th>Relaciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Usuarios</strong></td>
+                                        <td>Información de miembros</td>
+                                        <td>ID_Usuario, Nombre, Email, Teléfono</td>
+                                        <td>1:N con Prestamos</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Autores</strong></td>
+                                        <td>Información de autores</td>
+                                        <td>ID_Autor, Nombre, Nacionalidad, Biografía</td>
+                                        <td>1:N con Libros</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Categorías</strong></td>
+                                        <td>Clasificación de libros</td>
+                                        <td>ID_Categoria, Nombre, Edad_Recomendada</td>
+                                        <td>1:N con Libros</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Sucursales</strong></td>
+                                        <td>Ubicaciones de biblioteca</td>
+                                        <td>ID_Sucursal, Nombre, Dirección, Horarios</td>
+                                        <td>1:N con Prestamos, Bibliotecarios</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Bibliotecarios</strong></td>
+                                        <td>Personal de biblioteca</td>
+                                        <td>ID_Bibliotecario, Nombre, Turno, Sucursal</td>
+                                        <td>1:N con Prestamos</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Libros</strong></td>
+                                        <td>Catálogo de libros</td>
+                                        <td>ID_Libro, Título, ISBN, Autor, Categoría</td>
+                                        <td>N:M con Prestamos</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Prestamos</strong></td>
+                                        <td>Registro de préstamos</td>
+                                        <td>ID_Prestamo, Fechas, Usuario, Bibliotecario</td>
+                                        <td>N:M con Libros</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Detalle_Prestamos</strong></td>
+                                        <td>Libros en cada préstamo</td>
+                                        <td>ID_Prestamo, ID_Libro, Renovaciones</td>
+                                        <td>Tabla de unión</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <strong>Insertar datos de ejemplo en la estructura normalizada:</strong>
+                    <div class="code-block">
+-- Insertar datos de ejemplo
+INSERT INTO Sucursales VALUES 
+(1, 'Sucursal Centro', 'Calle Principal 123', '555-0001', 'centro@biblioteca.com', '08:00', '20:00', 200),
+(2, 'Sucursal Norte', 'Avenida Libertad 456', '555-0002', 'norte@biblioteca.com', '09:00', '18:00', 150);
+
+INSERT INTO Autores VALUES 
+(1, 'Miguel', 'de Cervantes', 'Española', '1547-09-29', '1616-04-22', 'Escritor español...'),
+(2, 'Gabriel', 'García Márquez', 'Colombiana', '1927-03-06', '2014-04-17', 'Escritor colombiano...');
+
+INSERT INTO Categorias VALUES 
+(1, 'Clásicos', 'Literatura clásica universal', 16, 'Sección A'),
+(2, 'Literatura Latinoamericana', 'Autores de América Latina', 14, 'Sección B');
+
+INSERT INTO Bibliotecarios VALUES 
+(1, 'Ana García', 'ana@biblioteca.com', '555-1001', 1, '2020-01-15', 'Mañana'),
+(2, 'Carlos Ruiz', 'carlos@biblioteca.com', '555-1002', 2, '2019-06-20', 'Tarde');
+
+INSERT INTO Usuarios VALUES 
+(501, 'Juan Pérez', 'juan@email.com', '123-456-789', 'Calle 123', '2023-01-01', 'Activo'),
+(502, 'María López', 'maria@email.com', '987-654-321', 'Avenida 456', '2023-02-01', 'Activo');
+
+INSERT INTO Libros VALUES 
+(2001, 'El Quijote', '978-84-376-0494-7', 1605, 1200, 'Disponible', 'A-001', 1, 1),
+(2002, 'Cien Años de Soledad', '978-84-376-0123-4', 1967, 432, 'Disponible', 'B-015', 2, 2);
+
+INSERT INTO Prestamos VALUES 
+(1001, '2024-01-15', '2024-02-15', NULL, 501, 1, 1, 'Activo', 'Primer préstamo del año');
+
+INSERT INTO Detalle_Prestamos VALUES 
+(1001, 2001, '2024-01-15', 0),
+(1001, 2002, '2024-01-15', 0);
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <strong>Consultas avanzadas en la estructura normalizada:</strong>
+                    <div class="code-block">
+-- Consulta completa: Información detallada de préstamos
+SELECT 
+    p.ID_Prestamo,
+    p.Fecha_Prestamo,
+    p.Estado_Prestamo,
+    u.Nombre_Usuario,
+    u.Email_Usuario,
+    l.Titulo_Libro,
+    a.Nombre_Autor + ' ' + a.Apellido_Autor AS Autor_Completo,
+    c.Nombre_Categoria,
+    b.Nombre_Bibliotecario,
+    s.Nombre_Sucursal,
+    s.Direccion_Sucursal
+FROM Prestamos p
+INNER JOIN Usuarios u ON p.ID_Usuario = u.ID_Usuario
+INNER JOIN Detalle_Prestamos dp ON p.ID_Prestamo = dp.ID_Prestamo
+INNER JOIN Libros l ON dp.ID_Libro = l.ID_Libro
+INNER JOIN Autores a ON l.ID_Autor = a.ID_Autor
+INNER JOIN Categorias c ON l.ID_Categoria = c.ID_Categoria
+INNER JOIN Bibliotecarios b ON p.ID_Bibliotecario = b.ID_Bibliotecario
+INNER JOIN Sucursales s ON p.ID_Sucursal = s.ID_Sucursal
+WHERE p.Estado_Prestamo = 'Activo';
+
+-- Estadísticas por categoría
+SELECT 
+    c.Nombre_Categoria,
+    COUNT(dp.ID_Libro) as Total_Prestamos,
+    COUNT(DISTINCT l.ID_Libro) as Libros_Diferentes,
+    COUNT(DISTINCT p.ID_Usuario) as Usuarios_Distintos
+FROM Categorias c
+LEFT JOIN Libros l ON c.ID_Categoria = l.ID_Categoria
+LEFT JOIN Detalle_Prestamos dp ON l.ID_Libro = dp.ID_Libro
+LEFT JOIN Prestamos p ON dp.ID_Prestamo = p.ID_Prestamo
+GROUP BY c.ID_Categoria, c.Nombre_Categoria
+ORDER BY Total_Prestamos DESC;
+
+-- Usuarios con préstamos vencidos
+SELECT 
+    u.Nombre_Usuario,
+    u.Email_Usuario,
+    p.Fecha_Devolucion_Programada,
+    DATEDIFF(day, p.Fecha_Devolucion_Programada, GETDATE()) as Dias_Vencido,
+    COUNT(dp.ID_Libro) as Libros_Pendientes
+FROM Usuarios u
+INNER JOIN Prestamos p ON u.ID_Usuario = p.ID_Usuario
+INNER JOIN Detalle_Prestamos dp ON p.ID_Prestamo = dp.ID_Prestamo
+WHERE p.Fecha_Devolucion_Real IS NULL 
+  AND p.Fecha_Devolucion_Programada < GETDATE()
+GROUP BY u.ID_Usuario, u.Nombre_Usuario, u.Email_Usuario, p.Fecha_Devolucion_Programada
+ORDER BY Dias_Vencido DESC;
+                    </div>
+                </div>
+            </div>
+
+            <div class="solution">
+                <h5>✅ Resultado Final: Sistema Completamente Normalizado</h5>
+                <ul>
+                    <li><strong>8 tablas especializadas</strong> en lugar de 1 tabla problemática</li>
+                    <li><strong>Eliminación total de redundancia</strong> - cada dato se almacena una sola vez</li>
+                    <li><strong>Integridad referencial</strong> garantizada mediante claves foráneas</li>
+                    <li><strong>Flexibilidad máxima</strong> para consultas complejas y reportes</li>
+                    <li><strong>Mantenimiento simplificado</strong> - cambios centralizados</li>
+                    <li><strong>Escalabilidad</strong> - fácil agregar nuevas funcionalidades</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="beneficios" class="section">
+            <h2>🎯 Beneficios y Consideraciones</h2>
+            
+            <h3>✅ Beneficios de la Normalización</h3>
+            <div class="benefits">
+                <div class="benefit-card">
+                    <h4>🛡️ Integridad de Datos</h4>
+                    <p>Garantiza consistencia y precisión en toda la base de datos, eliminando contradicciones</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>💾 Eficiencia de Almacenamiento</h4>
+                    <p>Reduce significativamente el espacio necesario eliminando duplicaciones</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🔄 Mantenimiento Simplificado</h4>
+                    <p>Facilita actualizaciones y modificaciones centralizadas</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🚫 Prevención de Anomalías</h4>
+                    <p>Evita errores en operaciones de inserción, actualización y eliminación</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>🔍 Consultas Especializadas</h4>
+                    <p>Permite realizar búsquedas y análisis complejos de manera eficiente</p>
+                </div>
+                <div class="benefit-card">
+                    <h4>📈 Escalabilidad</h4>
+                    <p>Facilita el crecimiento y la evolución del sistema</p>
+                </div>
+            </div>
+
+            <h3>⚖️ Consideraciones y Limitaciones</h3>
+            <div class="warning">
+                <h5>⚠️ Consideraciones Importantes</h5>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li><strong>Complejidad de consultas:</strong> Las consultas pueden requerir múltiples JOINs</li>
+                    <li><strong>Rendimiento:</strong> En algunos casos, puede afectar la velocidad de consultas complejas</li>
+                    <li><strong>Curva de aprendizaje:</strong> Requiere comprensión profunda de relaciones</li>
+                    <li><strong>Sobrenormalización:</strong> Exceso de normalización puede ser contraproducente</li>
+                </ul>
+            </div>
+
+            <h3>📊 Comparativa: Antes vs Después</h3>
+            <div class="comparison">
+                <div class="before">
+                    <h5>❌ Sin Normalización</h5>
+                    <ul style="margin-left: 20px;">
+                        <li>Una tabla gigante con múltiples problemas</li>
+                        <li>Datos duplicados en múltiples filas</li>
+                        <li>Actualizaciones complejas y propensas a errores</li>
+                        <li>Desperdicio significativo de espacio</li>
+                        <li>Riesgo alto de inconsistencias</li>
+                        <li>Dificultad para realizar consultas específicas</li>
+                    </ul>
+                </div>
+                <div class="after">
+                    <h5>✅ Con Normalización 3FN</h5>
+                    <ul style="margin-left: 20px;">
+                        <li>Múltiples tablas especializadas y relacionadas</li>
+                        <li>Cada dato almacenado una sola vez</li>
+                        <li>Actualizaciones centralizadas y seguras</li>
+                        <li>Uso óptimo del espacio de almacenamiento</li>
+                        <li>Integridad referencial garantizada</li>
+                        <li>Flexibilidad máxima para análisis complejos</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info">
+                <h5>💡 Regla de Oro</h5>
+                <p><strong>Normalizar hasta 3FN es generalmente suficiente</strong> para la mayoría de aplicaciones. Formas normales superiores (BCNF, 4FN, 5FN) son necesarias solo
