@@ -1,4 +1,9 @@
-<!DOCTYPE html>
+// Función para aplicar resaltado de sintaxis SQL
+        function applySQLHighlighting() {
+            const codeBlocks = document.querySelectorAll('.code-block');
+            
+            codeBlocks.forEach(block => {
+                if (block.dataset.highlighted) return; // Ya procesa<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -153,30 +158,64 @@
         }
 
         .code-block {
-            background: #2c3e50;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: #ecf0f1;
-            padding: 25px;
-            border-radius: 10px;
+            padding: 30px;
+            border-radius: 12px;
             margin: 25px 0;
             overflow-x: auto;
-            font-family: 'Courier New', monospace;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
             position: relative;
-            border-left: 5px solid #3498db;
-            font-size: 0.95em;
-            line-height: 1.4;
+            border: 1px solid #34495e;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            font-size: 0.9em;
+            line-height: 1.8;
         }
 
         .code-block::before {
             content: 'SQL';
             position: absolute;
-            top: 10px;
-            right: 15px;
-            background: #3498db;
+            top: 15px;
+            right: 20px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
             color: white;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.8em;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75em;
             font-weight: bold;
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Syntax highlighting for SQL */
+        .code-block .sql-keyword {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .code-block .sql-string {
+            color: #2ecc71;
+        }
+
+        .code-block .sql-number {
+            color: #f39c12;
+        }
+
+        .code-block .sql-comment {
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        .code-block .sql-function {
+            color: #9b59b6;
+        }
+
+        .code-block .sql-table {
+            color: #1abc9c;
+            font-weight: bold;
+        }
+
+        .code-block .sql-column {
+            color: #f1c40f;
         }
 
         .highlight {
@@ -750,11 +789,12 @@ CREATE TABLE Ventas_Problematica (
                 <p><strong>Problema:</strong> Si Juan Pérez cambia su teléfono, hay que actualizar TODAS las filas donde aparece.</p>
                 <p><strong>Consecuencia:</strong> Proceso lento y propenso a errores, datos inconsistentes.</p>
                 <div class="code-block">
--- Actualización problemática
-UPDATE Ventas_Problematica 
-SET Telefono_Cliente = '555-111-222' 
-WHERE Nombre_Cliente = 'Juan Pérez';
--- ¿Qué pasa si olvidamos actualizar alguna fila?
+<span class="sql-comment">-- Actualización problemática</span>
+<span class="sql-keyword">UPDATE</span> <span class="sql-table">Ventas_Problematica</span> 
+<span class="sql-keyword">SET</span> <span class="sql-column">Telefono_Cliente</span> = <span class="sql-string">'555-111-222'</span> 
+<span class="sql-keyword">WHERE</span> <span class="sql-column">Nombre_Cliente</span> = <span class="sql-string">'Juan Pérez'</span>;
+
+<span class="sql-comment">-- ¿Qué pasa si olvidamos actualizar alguna fila?</span>
                 </div>
             </div>
 
@@ -763,10 +803,19 @@ WHERE Nombre_Cliente = 'Juan Pérez';
                 <p><strong>Problema:</strong> No puedes agregar un nuevo cliente a la base de datos sin que haga una compra.</p>
                 <p><strong>Consecuencia:</strong> Pérdida de flexibilidad del sistema.</p>
                 <div class="code-block">
--- IMPOSIBLE hacer esto sin una venta:
-INSERT INTO Ventas_Problematica (ID_Cliente, Nombre_Cliente, Telefono_Cliente) 
-VALUES (100, 'Cliente Nuevo', '999-888-777');
--- Error: Faltan campos obligatorios de venta
+<span class="sql-comment">-- IMPOSIBLE hacer esto sin una venta:</span>
+<span class="sql-keyword">INSERT INTO</span> <span class="sql-table">Ventas_Problematica</span> (
+    <span class="sql-column">ID_Cliente</span>, 
+    <span class="sql-column">Nombre_Cliente</span>, 
+    <span class="sql-column">Telefono_Cliente</span>
+) 
+<span class="sql-keyword">VALUES</span> (
+    <span class="sql-number">100</span>, 
+    <span class="sql-string">'Cliente Nuevo'</span>, 
+    <span class="sql-string">'999-888-777'</span>
+);
+
+<span class="sql-comment">-- Error: Faltan campos obligatorios de venta</span>
                 </div>
             </div>
 
@@ -775,9 +824,11 @@ VALUES (100, 'Cliente Nuevo', '999-888-777');
                 <p><strong>Problema:</strong> Si eliminas la última venta de un cliente, pierdes toda su información.</p>
                 <p><strong>Consecuencia:</strong> Pérdida accidental de datos importantes.</p>
                 <div class="code-block">
--- Si eliminas la única venta de un cliente:
-DELETE FROM Ventas_Problematica WHERE ID_Venta = 003;
--- Has perdido toda la información de María López
+<span class="sql-comment">-- Si eliminas la única venta de un cliente:</span>
+<span class="sql-keyword">DELETE FROM</span> <span class="sql-table">Ventas_Problematica</span> 
+<span class="sql-keyword">WHERE</span> <span class="sql-column">ID_Venta</span> = <span class="sql-number">003</span>;
+
+<span class="sql-comment">-- Has perdido toda la información de María López</span>
                 </div>
             </div>
         </section>
@@ -852,19 +903,22 @@ DELETE FROM Ventas_Problematica WHERE ID_Venta = 003;
                         <div class="before">
                             <h5>❌ Antes (Violación)</h5>
                             <div class="code-block">
--- Consulta problemática:
-SELECT * FROM Empleados 
-WHERE Teléfonos LIKE '%123-456-789%';
--- No es eficiente ni confiable
+<span class="sql-comment">-- Consulta problemática:</span>
+<span class="sql-keyword">SELECT</span> * <span class="sql-keyword">FROM</span> <span class="sql-table">Empleados</span> 
+<span class="sql-keyword">WHERE</span> <span class="sql-column">Teléfonos</span> <span class="sql-keyword">LIKE</span> <span class="sql-string">'%123-456-789%'</span>;
+
+<span class="sql-comment">-- No es eficiente ni confiable</span>
                             </div>
                         </div>
                         <div class="after">
                             <h5>✅ Después (1FN)</h5>
                             <div class="code-block">
--- Consulta eficiente:
-SELECT e.* FROM Empleados e
-JOIN Telefonos_Empleados te ON e.ID_Empleado = te.ID_Empleado
-WHERE te.Telefono = '123-456-789';
+<span class="sql-comment">-- Consulta eficiente:</span>
+<span class="sql-keyword">SELECT</span> e.* 
+<span class="sql-keyword">FROM</span> <span class="sql-table">Empleados</span> e
+<span class="sql-keyword">INNER JOIN</span> <span class="sql-table">Telefonos_Empleados</span> te 
+    <span class="sql-keyword">ON</span> e.<span class="sql-column">ID_Empleado</span> = te.<span class="sql-column">ID_Empleado</span>
+<span class="sql-keyword">WHERE</span> te.<span class="sql-column">Telefono</span> = <span class="sql-string">'123-456-789'</span>;
                             </div>
                         </div>
                     </div>
@@ -874,28 +928,30 @@ WHERE te.Telefono = '123-456-789';
                     <span class="step-number">3</span>
                     <strong>Crear la estructura normalizada en 1FN:</strong>
                     <div class="code-block">
--- Tabla principal de empleados
-CREATE TABLE Empleados (
-    ID_Empleado INT PRIMARY KEY,
-    Nombre VARCHAR(100) NOT NULL
+<span class="sql-comment">-- Tabla principal de empleados</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Empleados</span> (
+    <span class="sql-column">ID_Empleado</span> <span class="sql-keyword">INT</span> <span class="sql-keyword">PRIMARY KEY</span>,
+    <span class="sql-column">Nombre</span> <span class="sql-keyword">VARCHAR</span>(<span class="sql-number">100</span>) <span class="sql-keyword">NOT NULL</span>
 );
 
--- Tabla separada para teléfonos
-CREATE TABLE Telefonos_Empleados (
-    ID_Telefono INT PRIMARY KEY IDENTITY(1,1),
-    ID_Empleado INT NOT NULL,
-    Telefono VARCHAR(20) NOT NULL,
-    Tipo_Telefono VARCHAR(20), -- 'Móvil', 'Casa', 'Trabajo'
-    FOREIGN KEY (ID_Empleado) REFERENCES Empleados(ID_Empleado)
+<span class="sql-comment">-- Tabla separada para teléfonos</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Telefonos_Empleados</span> (
+    <span class="sql-column">ID_Telefono</span> <span class="sql-keyword">INT</span> <span class="sql-keyword">PRIMARY KEY</span> <span class="sql-function">IDENTITY</span>(<span class="sql-number">1</span>,<span class="sql-number">1</span>),
+    <span class="sql-column">ID_Empleado</span> <span class="sql-keyword">INT</span> <span class="sql-keyword">NOT NULL</span>,
+    <span class="sql-column">Telefono</span> <span class="sql-keyword">VARCHAR</span>(<span class="sql-number">20</span>) <span class="sql-keyword">NOT NULL</span>,
+    <span class="sql-column">Tipo_Telefono</span> <span class="sql-keyword">VARCHAR</span>(<span class="sql-number">20</span>), <span class="sql-comment">-- 'Móvil', 'Casa', 'Trabajo'</span>
+    <span class="sql-keyword">FOREIGN KEY</span> (<span class="sql-column">ID_Empleado</span>) 
+        <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Empleados</span>(<span class="sql-column">ID_Empleado</span>)
 );
 
--- Tabla separada para habilidades
-CREATE TABLE Habilidades_Empleados (
-    ID_Habilidad INT PRIMARY KEY IDENTITY(1,1),
-    ID_Empleado INT NOT NULL,
-    Habilidad VARCHAR(50) NOT NULL,
-    Nivel VARCHAR(20), -- 'Básico', 'Intermedio', 'Avanzado'
-    FOREIGN KEY (ID_Empleado) REFERENCES Empleados(ID_Empleado)
+<span class="sql-comment">-- Tabla separada para habilidades</span>
+<span class="sql-keyword">CREATE TABLE</span> <span class="sql-table">Habilidades_Empleados</span> (
+    <span class="sql-column">ID_Habilidad</span> <span class="sql-keyword">INT</span> <span class="sql-keyword">PRIMARY KEY</span> <span class="sql-function">IDENTITY</span>(<span class="sql-number">1</span>,<span class="sql-number">1</span>),
+    <span class="sql-column">ID_Empleado</span> <span class="sql-keyword">INT</span> <span class="sql-keyword">NOT NULL</span>,
+    <span class="sql-column">Habilidad</span> <span class="sql-keyword">VARCHAR</span>(<span class="sql-number">50</span>) <span class="sql-keyword">NOT NULL</span>,
+    <span class="sql-column">Nivel</span> <span class="sql-keyword">VARCHAR</span>(<span class="sql-number">20</span>), <span class="sql-comment">-- 'Básico', 'Intermedio', 'Avanzado'</span>
+    <span class="sql-keyword">FOREIGN KEY</span> (<span class="sql-column">ID_Empleado</span>) 
+        <span class="sql-keyword">REFERENCES</span> <span class="sql-table">Empleados</span>(<span class="sql-column">ID_Empleado</span>)
 );
                     </div>
                 </div>
@@ -904,32 +960,36 @@ CREATE TABLE Habilidades_Empleados (
                     <span class="step-number">4</span>
                     <strong>Insertar los datos normalizados:</strong>
                     <div class="code-block">
--- Insertar empleados
-INSERT INTO Empleados (ID_Empleado, Nombre) VALUES
-(1, 'Juan Pérez'),
-(2, 'Ana García'),
-(3, 'Luis Martín');
+<span class="sql-comment">-- Insertar empleados</span>
+<span class="sql-keyword">INSERT INTO</span> <span class="sql-table">Empleados</span> (<span class="sql-column">ID_Empleado</span>, <span class="sql-column">Nombre</span>) <span class="sql-keyword">VALUES</span>
+(<span class="sql-number">1</span>, <span class="sql-string">'Juan Pérez'</span>),
+(<span class="sql-number">2</span>, <span class="sql-string">'Ana García'</span>),
+(<span class="sql-number">3</span>, <span class="sql-string">'Luis Martín'</span>);
 
--- Insertar teléfonos
-INSERT INTO Telefonos_Empleados (ID_Empleado, Telefono, Tipo_Telefono) VALUES
-(1, '123-456-789', 'Móvil'),
-(1, '987-654-321', 'Casa'),
-(2, '555-111-222', 'Móvil'),
-(3, '777-888-999', 'Móvil'),
-(3, '111-222-333', 'Casa'),
-(3, '444-555-666', 'Trabajo');
+<span class="sql-comment">-- Insertar teléfonos</span>
+<span class="sql-keyword">INSERT INTO</span> <span class="sql-table">Telefonos_Empleados</span> (
+    <span class="sql-column">ID_Empleado</span>, <span class="sql-column">Telefono</span>, <span class="sql-column">Tipo_Telefono</span>
+) <span class="sql-keyword">VALUES</span>
+(<span class="sql-number">1</span>, <span class="sql-string">'123-456-789'</span>, <span class="sql-string">'Móvil'</span>),
+(<span class="sql-number">1</span>, <span class="sql-string">'987-654-321'</span>, <span class="sql-string">'Casa'</span>),
+(<span class="sql-number">2</span>, <span class="sql-string">'555-111-222'</span>, <span class="sql-string">'Móvil'</span>),
+(<span class="sql-number">3</span>, <span class="sql-string">'777-888-999'</span>, <span class="sql-string">'Móvil'</span>),
+(<span class="sql-number">3</span>, <span class="sql-string">'111-222-333'</span>, <span class="sql-string">'Casa'</span>),
+(<span class="sql-number">3</span>, <span class="sql-string">'444-555-666'</span>, <span class="sql-string">'Trabajo'</span>);
 
--- Insertar habilidades
-INSERT INTO Habilidades_Empleados (ID_Empleado, Habilidad, Nivel) VALUES
-(1, 'Java', 'Avanzado'),
-(1, 'Python', 'Intermedio'),
-(1, 'SQL', 'Avanzado'),
-(2, 'C#', 'Avanzado'),
-(2, 'JavaScript', 'Intermedio'),
-(3, 'PHP', 'Avanzado'),
-(3, 'MySQL', 'Avanzado'),
-(3, 'HTML', 'Intermedio'),
-(3, 'CSS', 'Intermedio');
+<span class="sql-comment">-- Insertar habilidades</span>
+<span class="sql-keyword">INSERT INTO</span> <span class="sql-table">Habilidades_Empleados</span> (
+    <span class="sql-column">ID_Empleado</span>, <span class="sql-column">Habilidad</span>, <span class="sql-column">Nivel</span>
+) <span class="sql-keyword">VALUES</span>
+(<span class="sql-number">1</span>, <span class="sql-string">'Java'</span>, <span class="sql-string">'Avanzado'</span>),
+(<span class="sql-number">1</span>, <span class="sql-string">'Python'</span>, <span class="sql-string">'Intermedio'</span>),
+(<span class="sql-number">1</span>, <span class="sql-string">'SQL'</span>, <span class="sql-string">'Avanzado'</span>),
+(<span class="sql-number">2</span>, <span class="sql-string">'C#'</span>, <span class="sql-string">'Avanzado'</span>),
+(<span class="sql-number">2</span>, <span class="sql-string">'JavaScript'</span>, <span class="sql-string">'Intermedio'</span>),
+(<span class="sql-number">3</span>, <span class="sql-string">'PHP'</span>, <span class="sql-string">'Avanzado'</span>),
+(<span class="sql-number">3</span>, <span class="sql-string">'MySQL'</span>, <span class="sql-string">'Avanzado'</span>),
+(<span class="sql-number">3</span>, <span class="sql-string">'HTML'</span>, <span class="sql-string">'Intermedio'</span>),
+(<span class="sql-number">3</span>, <span class="sql-string">'CSS'</span>, <span class="sql-string">'Intermedio'</span>);
                     </div>
                 </div>
 
