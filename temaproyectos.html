@@ -3,69 +3,56 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Laboratorio de Normalización – SQL Server</title>
+<title>Laboratorio de Normalización – demo drag&drop</title>
 
-<!-- ────────  ESTILOS  ──────── -->
+<!-- ============  ESTILOS  ============ -->
 <style>
-/* ——— Reseteo y contenedor ——— */
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
-     background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-     min-height:100vh;color:#333;padding:20px}
-.container{max-width:1400px;margin:0 auto}
+body{
+  font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  min-height:100vh;color:#333;padding:24px}
+.container{max-width:1300px;margin:0 auto}
+.header{color:#fff;text-align:center;background:rgba(255,255,255,.1);
+        backdrop-filter:blur(10px);border-radius:20px;padding:28px;margin-bottom:32px}
+.header h1{font-size:2.2rem;margin-bottom:8px;text-shadow:2px 2px 4px rgba(0,0,0,.3)}
 
-/* ——— Cabecera ——— */
-.header{color:#fff;text-align:center;margin-bottom:30px;padding:30px;
-        background:rgba(255,255,255,.1);border-radius:20px;backdrop-filter:blur(10px)}
-.header h1{font-size:2.3rem;margin-bottom:10px;text-shadow:2px 2px 4px rgba(0,0,0,.3)}
-
-/* ——— Tabs ——— */
-.phase-tabs{display:flex;margin-bottom:30px;background:#f8f9fa;border-radius:10px;padding:5px}
-.phase-tab{flex:1;padding:15px;text-align:center;border-radius:8px;cursor:pointer;font-weight:700;transition:.25s}
+.phase-tabs{display:flex;gap:4px;margin-bottom:28px;background:#f8f9fa;border-radius:10px;padding:4px}
+.phase-tab{flex:1;padding:14px;text-align:center;border-radius:8px;font-weight:700;cursor:pointer;transition:.25s}
 .phase-tab.active{background:#667eea;color:#fff}
 .phase-tab:hover:not(.active){background:#e3f2fd}
 
-/* ——— Workspaces ——— */
-.workspace{display:none;min-height:600px}
+.workspace{display:none;min-height:540px}
 .workspace.active{display:block}
 
-/* ——— Cajas de tabla ——— */
 .table-container{background:#fff;border:2px solid #dee2e6;border-radius:10px;
-                 min-height:200px;padding:15px;margin:15px 0;position:relative}
+                 min-height:180px;padding:14px;margin:14px 0;position:relative}
 .table-container.drop-zone{border-color:#667eea;background:#f0f5ff;
                            box-shadow:0 0 10px rgba(102,126,234,.4)}
 .table-container.error{border-color:#dc3545;background:#fdecea;animation:shake .4s}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
-/* ——— Cabecera tabla ——— */
-.table-header{background:#667eea;color:#fff;padding:10px;border-radius:5px;margin-bottom:15px;text-align:center;font-weight:700}
-.table-header input{background:transparent;border:none;color:#fff;text-align:center;width:100%;font-weight:700}
+.table-header{background:#667eea;color:#fff;padding:10px;border-radius:5px;margin-bottom:12px;text-align:center;font-weight:700}
 
-/* ——— Área atributos ——— */
-.attributes-area{min-height:100px;border:2px dashed #dee2e6;border-radius:8px;padding:15px;transition:.25s}
+.attributes-area{min-height:90px;border:2px dashed #dee2e6;border-radius:8px;padding:14px;transition:.25s}
 .attributes-area.has-attributes{border-color:#28a745;background:#f8fff9}
-.placeholder{color:#999;font-style:italic;text-align:center;padding:20px;user-select:none}
+.placeholder{color:#999;font-style:italic;text-align:center;padding:18px;user-select:none}
 
-/* ——— Atributos ——— */
 .attribute{display:inline-block;background:#e3f2fd;border:1px solid #2196f3;border-radius:5px;
-           padding:8px 12px;margin:5px;cursor:grab;user-select:none;transition:.2s}
+           padding:7px 10px;margin:5px;cursor:grab;user-select:none;transition:.2s}
 .attribute:hover{background:#bbdefb;transform:translateY(-2px)}
 .attribute.dragging{opacity:.6;cursor:grabbing;transform:rotate(3deg);z-index:1000}
 .attribute.primary-key{background:#ffe0b2;border-color:#ff9800}
-.attribute-info{display:block;font-size:.75rem;color:#555;margin-top:3px}
+.attribute-info{display:block;font-size:.75rem;color:#555;margin-top:2px}
 
-/* ——— Botones ——— */
-.controls{display:flex;gap:15px;justify-content:center;margin:25px 0}
-.btn{background:#667eea;color:#fff;border:none;padding:10px 22px;border-radius:22px;cursor:pointer;font-size:1rem;transition:.25s}
+.controls{display:flex;gap:16px;justify-content:center;margin:24px 0}
+.btn{background:#667eea;color:#fff;border:none;padding:10px 22px;border-radius:22px;font-size:1rem;cursor:pointer;transition:.25s}
 .btn:hover{background:#5a6fd8;transform:translateY(-2px)}
 .btn:disabled{background:#bbb;cursor:not-allowed;transform:none}
 .btn-success{background:#28a745}
 .btn-success:hover{background:#218838}
-.btn-warning{background:#ff9800}
-.btn-warning:hover{background:#f57c00}
 
-/* ——— Feedback ——— */
-.feedback{display:none;padding:15px;border-radius:8px;font-weight:700;margin-top:20px}
+.feedback{display:none;padding:14px;border-radius:8px;font-weight:700;margin-top:20px}
 .feedback.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
 .feedback.error  {background:#fdecea;color:#721c24;border:1px solid #f5c6cb}
 .feedback.warning{background:#fff3cd;color:#856404;border:1px solid #ffeaa7}
@@ -76,10 +63,7 @@ body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
 <div class="container">
 
   <!-- ====== Cabecera ====== -->
-  <div class="header">
-    <h1>🧪 Laboratorio de Normalización</h1>
-    <p>Caso práctico: Registro académico (estudiante-curso-profesor)</p>
-  </div>
+  <div class="header"><h1>🧪 Laboratorio de Normalización</h1></div>
 
   <!-- ====== Tabs ====== -->
   <div class="phase-tabs">
@@ -88,32 +72,32 @@ body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
     <div class="phase-tab"          data-phase="denormalization">⚡ Desnormalización</div>
   </div>
 
-  <!-- ====== Fase 1: Análisis ====== -->
+  <!-- ====== Fase 1 ====== -->
   <div id="analysis" class="workspace active">
     <h3>Tabla desnormalizada</h3>
     <div id="originalAttributes" class="table-container">
-      <div class="attribute primary-key" draggable="true">EstudianteID <span class="attribute-info">PK</span></div>
-      <div class="attribute"             draggable="true">NombreEstudiante</div>
-      <div class="attribute"             draggable="true">EmailEstudiante</div>
-      <div class="attribute"             draggable="true">CarreraEstudiante</div>
-      <div class="attribute primary-key" draggable="true">CursoID <span class="attribute-info">PK</span></div>
-      <div class="attribute"             draggable="true">NombreCurso</div>
-      <div class="attribute"             draggable="true">Creditos</div>
-      <div class="attribute primary-key" draggable="true">ProfesorID <span class="attribute-info">PK</span></div>
-      <div class="attribute"             draggable="true">NombreProfesor</div>
-      <div class="attribute"             draggable="true">DepartamentoProfesor</div>
-      <div class="attribute"             draggable="true">FechaMatricula</div>
-      <div class="attribute"             draggable="true">NotaFinal</div>
-      <div class="attribute"             draggable="true">Semestre</div>
+      <div class="attribute primary-key" draggable="true">EstudianteID<span class="attribute-info">PK</span></div>
+      <div class="attribute" draggable="true">NombreEstudiante</div>
+      <div class="attribute" draggable="true">EmailEstudiante</div>
+      <div class="attribute" draggable="true">CarreraEstudiante</div>
+      <div class="attribute primary-key" draggable="true">CursoID<span class="attribute-info">PK</span></div>
+      <div class="attribute" draggable="true">NombreCurso</div>
+      <div class="attribute" draggable="true">Creditos</div>
+      <div class="attribute primary-key" draggable="true">ProfesorID<span class="attribute-info">PK</span></div>
+      <div class="attribute" draggable="true">NombreProfesor</div>
+      <div class="attribute" draggable="true">DepartamentoProfesor</div>
+      <div class="attribute" draggable="true">FechaMatricula</div>
+      <div class="attribute" draggable="true">NotaFinal</div>
+      <div class="attribute" draggable="true">Semestre</div>
     </div>
     <div class="controls">
       <button class="btn btn-success" onclick="startNormalization()">🚀 Comenzar normalización</button>
     </div>
   </div>
 
-  <!-- ====== Fase 2: Normalización ====== -->
+  <!-- ====== Fase 2 ====== -->
   <div id="normalization" class="workspace">
-    <div class="workspace-grid">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
       <div>
         <h3>Atributos disponibles</h3>
         <div id="availableAttributes" class="table-container"></div>
@@ -123,42 +107,39 @@ body{font-family:'Segoe UI',Tahoma,Verdana,sans-serif;
 
         <div class="table-container" data-table-type="estudiante">
           <div class="table-header">Estudiantes</div>
-          <div id="est-attr" class="attributes-area"><div class="placeholder">← arrastra aquí</div></div>
+          <div class="attributes-area"><div class="placeholder">← arrastra aquí</div></div>
         </div>
 
         <div class="table-container" data-table-type="curso">
           <div class="table-header">Cursos</div>
-          <div id="cur-attr" class="attributes-area"><div class="placeholder">← arrastra aquí</div></div>
+          <div class="attributes-area"><div class="placeholder">← arrastra aquí</div></div>
         </div>
 
         <div class="table-container" data-table-type="profesor">
           <div class="table-header">Profesores</div>
-          <div id="pro-attr" class="attributes-area"><div class="placeholder">← arrastra aquí</div></div>
+          <div class="attributes-area"><div class="placeholder">← arrastra aquí</div></div>
         </div>
 
         <div class="table-container" data-table-type="matricula">
           <div class="table-header">Matriculas</div>
-          <div id="mat-attr" class="attributes-area"><div class="placeholder">← arrastra aquí</div></div>
+          <div class="attributes-area"><div class="placeholder">← arrastra aquí</div></div>
         </div>
       </div>
     </div>
 
-    <div id="normalizationFeedback" class="feedback"></div>
+    <div id="normalFeedback" class="feedback"></div>
     <div class="controls">
-      <button class="btn" onclick="validateNormalization()">✅ Validar</button>
-      <button class="btn btn-success" id="sqlBtn" onclick="alert('SQL generado')" disabled>📝 Generar SQL</button>
+      <button class="btn" onclick="validate()">✅ Validar</button>
     </div>
   </div>
 
-  <!-- ====== Fase 3: Desnormalización (esqueleto) ====== -->
-  <div id="denormalization" class="workspace">
-    <p>(… continuar aquí …)</p>
-  </div>
+  <!-- ====== Fase 3 (vacía) ====== -->
+  <div id="denormalization" class="workspace"><p>…</p></div>
 </div>
 
-<!-- ────────  JAVASCRIPT  ──────── -->
+<!-- ============  JAVASCRIPT  ============ -->
 <script>
-/* ---------- datos “correctos” para validar (demo básica) ---------- */
+/* --- configuración “correcta” para validar demo -------- */
 const correct = {
   estudiante:['EstudianteID','NombreEstudiante','EmailEstudiante','CarreraEstudiante'],
   curso     :['CursoID','NombreCurso','Creditos','ProfesorID'],
@@ -166,86 +147,105 @@ const correct = {
   matricula :['EstudianteID','CursoID','FechaMatricula','NotaFinal','Semestre']
 };
 
-/* ---------- cambio de pestañas ---------- */
+/* --- util feedback ------------------------------------- */
+function fb(msg,type='success'){
+  const box=document.getElementById('normalFeedback');
+  box.className='feedback '+type;
+  box.textContent=msg;
+  box.style.display='block';
+}
+
+/* --- cambio de pestañas -------------------------------- */
 document.querySelector('.phase-tabs').addEventListener('click',e=>{
   if(!e.target.classList.contains('phase-tab')) return;
   document.querySelectorAll('.phase-tab').forEach(t=>t.classList.remove('active'));
   e.target.classList.add('active');
+
   const phase=e.target.dataset.phase;
   document.querySelectorAll('.workspace').forEach(w=>w.classList.remove('active'));
   document.getElementById(phase).classList.add('active');
-  if(phase!=='analysis') rewire();          /* re-asignar drag&drop */
+  if(phase!=='analysis') rewire();
 });
 
-/* ---------- pasar a fase de normalización ---------- */
+/* --- pasar a fase 2 ------------------------------------ */
 function startNormalization(){
   document.querySelector('.phase-tab[data-phase="normalization"]').click();
+
   const avail=document.getElementById('availableAttributes');
   avail.innerHTML='';
-  document.querySelectorAll('#originalAttributes .attribute')
-    .forEach(a=>avail.appendChild(a.cloneNode(true)));
+  document.querySelectorAll('#originalAttributes .attribute').forEach(a=>{
+    avail.appendChild(a.cloneNode(true));
+  });
   rewire();
 }
 
-/* ---------- DRAG & DROP universal ---------- */
+/* ======================================================= */
+/* ================  DRAG & DROP  ========================= */
 let dragEl=null;
 
 function rewire(){
-  /* items */
+  /* — atributos — */
   document.querySelectorAll('.attribute').forEach(a=>{
     a.draggable=true;
+
+    /* quita listeners antiguos */
+    a.ondragstart=a.ondragend=a.ondblclick=null;
+
     a.ondragstart=e=>{
       dragEl=e.target;
+      e.dataTransfer.setData('text/plain',' ');   // 🟢 clave
       e.dataTransfer.effectAllowed='move';
-      e.dataTransfer.setData('text/plain',' ');   /* 🟢 línea crucial */
       e.target.classList.add('dragging');
     };
-    a.ondragend =e=>{ e.target.classList.remove('dragging');dragEl=null; };
-    a.ondblclick =e=>{ document.getElementById('availableAttributes').appendChild(e.target); rewire(); };
+    a.ondragend=()=>{a.classList.remove('dragging');dragEl=null};
+    a.ondblclick=()=>{document.getElementById('availableAttributes').appendChild(a);rewire();};
   });
 
-  /* zonas de destino */
-  document.querySelectorAll('.table-container[data-table-type]').forEach(zone=>{
-    zone.ondragover  =e=>{e.preventDefault();e.dataTransfer.dropEffect='move';};
-    zone.ondragenter =e=>{if(dragEl)zone.classList.add('drop-zone');};
-    zone.ondragleave =e=>{if(!zone.contains(e.relatedTarget))zone.classList.remove('drop-zone');};
-    zone.ondrop      =e=>{
-      e.preventDefault();zone.classList.remove('drop-zone');
-      if(!dragEl) return;
-      const type=zone.dataset.tableType;
-      const name=dragEl.textContent.trim();
-      /* validación sencilla */
-      if(correct[type]?.includes(name)){
-        const area=zone.querySelector('.attributes-area');
-        area.querySelector('.placeholder')?.remove();
-        area.classList.add('has-attributes');
-        area.appendChild(dragEl);
-        feedback('👍 '+name+' → '+type,'success');
-      }else feedback('❌ '+name+' no pertenece a '+type,'error');
-      rewire();
-    };
+  /* — zonas de drop (cont + area) — */
+  document.querySelectorAll('.table-container').forEach(cont=>{
+    const area=cont.querySelector('.attributes-area');
+    [cont,area].forEach(zone=>{
+      zone.ondragover=e=>{e.preventDefault();e.dataTransfer.dropEffect='move'};
+      zone.ondragenter=e=>{if(dragEl)cont.classList.add('drop-zone')};
+      zone.ondragleave=e=>{if(!cont.contains(e.relatedTarget))cont.classList.remove('drop-zone')};
+      zone.ondrop=e=>{
+        e.preventDefault();cont.classList.remove('drop-zone');
+        if(!dragEl) return;
+        handleDrop(cont);
+        rewire();
+      };
+    });
   });
 }
 
-/* ---------- feedback ---------- */
-function feedback(msg,cls){
-  const box=document.getElementById('normalizationFeedback');
-  box.textContent=msg; box.className='feedback '+cls; box.style.display='block';
-  if(cls==='success') setTimeout(()=>box.style.display='none',3500);
-}
+function handleDrop(cont){
+  const type=cont.dataset.tableType;
+  const name=dragEl.textContent.trim();
 
-/* ---------- validar (demo) ---------- */
-function validateNormalization(){
-  let ok=true;
-  for(const t in correct){
-    const got=[...document.querySelectorAll('#'+t.slice(0,3)+'-attr .attribute')].map(a=>a.textContent.trim());
-    if(JSON.stringify(got.sort())!==JSON.stringify(correct[t].slice().sort())) ok=false;
+  if(!correct[type]?.includes(name)){
+    fb(`❌ ${name} NO pertenece a ${type}`,'error');
+    cont.classList.add('error');
+    setTimeout(()=>cont.classList.remove('error'),650);
+    return;
   }
-  feedback(ok?'🎉 Todo correcto':'⚠️ Revisa las tablas',ok?'success':'error');
-  document.getElementById('sqlBtn').disabled=!ok;
+  const tgt=cont.querySelector('.attributes-area');
+  tgt.querySelector('.placeholder')?.remove();
+  tgt.classList.add('has-attributes');
+  tgt.appendChild(dragEl);
+  fb(`✅ ${name} → ${type}`,'success');
 }
 
-/* asignar drag&drop inicial */
+/* ------------------------------------------------------- */
+function validate(){
+  let ok=true;
+  Object.entries(correct).forEach(([t,exp])=>{
+    const got=[...document.querySelectorAll(`[data-table-type="${t}"] .attribute`)]
+               .map(a=>a.textContent.trim());
+    if(JSON.stringify(got.sort())!==JSON.stringify(exp.slice().sort())) ok=false;
+  });
+  fb(ok?'🎉 Todo correcto':'⚠️ Revisa las tablas',ok?'success':'error');
+}
+/* inicia drag&drop en fase 1 */
 rewire();
 </script>
 </body>
