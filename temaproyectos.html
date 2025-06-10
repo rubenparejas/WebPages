@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laboratorio de Normalización - SQL Server</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -17,330 +13,67 @@
             color: #333;
             padding: 20px;
         }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1400px; margin: 0 auto; }
         .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
+            text-align: center; color: white; margin-bottom: 30px; padding: 30px;
+            background: rgba(255, 255, 255, 0.1); border-radius: 20px; backdrop-filter: blur(10px);
         }
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        .case-scenario {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-        .scenario-title {
-            color: #667eea;
-            font-size: 1.5em;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-        }
-        .phase-tabs {
-            display: flex;
-            margin-bottom: 30px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 5px;
-        }
-        .phase-tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-        }
-        .phase-tab.active {
-            background: #667eea;
-            color: white;
-        }
-        .phase-tab:hover:not(.active) {
-            background: #e3f2fd;
-        }
-        .workspace {
-            display: none;
-            min-height: 600px;
-        }
-        .workspace.active {
-            display: block;
-        }
-        .original-table {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-        .table-container {
-            background: white;
-            border: 2px solid #dee2e6;
-            border-radius: 10px;
-            min-height: 200px;
-            padding: 15px;
-            margin: 15px 0;
-            position: relative;
-        }
-        .table-container.drop-zone {
-            border-color: #667eea;
-            background: #f8f9ff;
-            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
-        }
-        .table-container.error {
-            border-color: #dc3545;
-            background: #f8d7da;
-            animation: shake 0.5s;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        .table-header {
-            background: #667eea;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        .table-header input {
-            background: transparent;
-            border: none;
-            color: white;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1em;
-            width: 100%;
-        }
-        .table-header input::placeholder {
-            color: rgba(255,255,255,0.7);
-        }
-        .attributes-area {
-            min-height: 100px;
-            border: 2px dashed #dee2e6;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-            transition: all 0.3s ease;
-        }
-        .attributes-area.has-attributes {
-            border-color: #28a745;
-            background: #f8fff9;
-        }
-        .attributes-area .placeholder {
-            color: #999;
-            font-style: italic;
-            text-align: center;
-            padding: 20px;
-            margin: 0;
-            user-select: none;
-            pointer-events: none;
-        }
-        .attribute {
-            background: #e3f2fd;
-            border: 1px solid #2196f3;
-            border-radius: 5px;
-            padding: 10px 15px;
-            margin: 5px;
-            cursor: grab;
-            user-select: none;
-            display: inline-block;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        .attribute:hover {
-            background: #bbdefb;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        .attribute.dragging {
-            opacity: 0.7;
-            cursor: grabbing;
-            transform: rotate(3deg);
-            z-index: 1000;
-        }
-        .attribute.primary-key {
-            background: #ffe0b2;
-            border-color: #ff9800;
-        }
-        .attribute.foreign-key {
-            background: #c8e6c9;
-            border-color: #4caf50;
-        }
-        .attribute-info {
-            font-size: 0.8em;
-            color: #666;
-            margin-top: 3px;
-        }
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-            justify-content: center;
-        }
-        .btn {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: all 0.3s ease;
-        }
-        .btn:hover {
-            background: #5a6fd8;
-            transform: translateY(-2px);
-        }
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .btn-success {
-            background: #28a745;
-        }
-        .btn-success:hover {
-            background: #218838;
-        }
-        .btn-danger {
-            background: #dc3545;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        .btn-warning {
-            background: #ff9800;
-        }
-        .btn-warning:hover {
-            background: #f57c00;
-        }
-        .feedback {
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            font-weight: bold;
-            display: none;
-        }
-        .feedback.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .feedback.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .feedback.warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-        .progress-indicator {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .progress-step {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #dee2e6;
-            color: #6c757d;
-            line-height: 40px;
-            margin: 0 10px;
-            font-weight: bold;
-        }
-        .progress-step.completed {
-            background: #28a745;
-            color: white;
-        }
-        .progress-step.current {
-            background: #667eea;
-            color: white;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        .hint-box {
-            background: #e8f4fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 0 5px 5px 0;
-        }
-        .hint-box h4 {
-            color: #1976d2;
-            margin-bottom: 8px;
-        }
-        .workspace-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-top: 20px;
-        }
-        .source-area {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-        }
-        .target-area {
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 20px;
-        }
-        .validation-rules {
-            background: #f1f3f4;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            font-size: 0.9em;
-        }
-        .rule {
-            margin: 5px 0;
-            padding: 5px 0;
-        }
-        .rule.violated {
-            color: #dc3545;
-            font-weight: bold;
-        }
-        .rule.satisfied {
-            color: #28a745;
-        }
-        .sql-preview {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-            font-family: 'Courier New', monospace;
-            white-space: pre-wrap;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .hidden {
-            display: none;
-        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);}
+        .case-scenario { background: white; border-radius: 15px; padding: 30px; margin-bottom: 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.1);}
+        .scenario-title { color: #667eea; font-size: 1.5em; margin-bottom: 15px; border-bottom: 2px solid #667eea; padding-bottom: 10px;}
+        .phase-tabs { display: flex; margin-bottom: 30px; background: #f8f9fa; border-radius: 10px; padding: 5px; }
+        .phase-tab { flex: 1; padding: 15px; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-weight: bold; }
+        .phase-tab.active { background: #667eea; color: white; }
+        .phase-tab:hover:not(.active) { background: #e3f2fd; }
+        .workspace { display: none; min-height: 600px; }
+        .workspace.active { display: block; }
+        .original-table { background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; margin-bottom: 30px; }
+        .table-container { background: white; border: 2px solid #dee2e6; border-radius: 10px; min-height: 200px; padding: 15px; margin: 15px 0; position: relative; }
+        .table-container.drop-zone { border-color: #667eea; background: #f8f9ff; box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);}
+        .table-container.error { border-color: #dc3545; background: #f8d7da; animation: shake 0.5s;}
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .table-header { background: #667eea; color: white; padding: 10px; border-radius: 5px; text-align: center; font-weight: bold; margin-bottom: 15px; }
+        .table-header input { background: transparent; border: none; color: white; text-align: center; font-weight: bold; font-size: 1em; width: 100%; }
+        .table-header input::placeholder { color: rgba(255,255,255,0.7);}
+        .attributes-area { min-height: 100px; border: 2px dashed #dee2e6; border-radius: 8px; padding: 15px; margin-top: 10px; transition: all 0.3s ease;}
+        .attributes-area.has-attributes { border-color: #28a745; background: #f8fff9;}
+        .attributes-area .placeholder { color: #999; font-style: italic; text-align: center; padding: 20px; margin: 0; user-select: none; pointer-events: none;}
+        .attribute { background: #e3f2fd; border: 1px solid #2196f3; border-radius: 5px; padding: 10px 15px; margin: 5px; cursor: grab; user-select: none; display: inline-block; transition: all 0.3s ease; position: relative;}
+        .attribute:hover { background: #bbdefb; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2);}
+        .attribute.dragging { opacity: 0.7; cursor: grabbing; transform: rotate(3deg); z-index: 1000;}
+        .attribute.primary-key { background: #ffe0b2; border-color: #ff9800;}
+        .attribute.foreign-key { background: #c8e6c9; border-color: #4caf50;}
+        .attribute-info { font-size: 0.8em; color: #666; margin-top: 3px;}
+        .controls { display: flex; gap: 15px; margin: 20px 0; justify-content: center;}
+        .btn { background: #667eea; color: white; border: none; padding: 12px 25px; border-radius: 25px; cursor: pointer; font-size: 1em; transition: all 0.3s ease; }
+        .btn:hover { background: #5a6fd8; transform: translateY(-2px);}
+        .btn:disabled { background: #ccc; cursor: not-allowed; transform: none;}
+        .btn-success { background: #28a745;}
+        .btn-success:hover { background: #218838;}
+        .btn-danger { background: #dc3545;}
+        .btn-danger:hover { background: #c82333;}
+        .btn-warning { background: #ff9800;}
+        .btn-warning:hover { background: #f57c00;}
+        .feedback { padding: 15px; border-radius: 8px; margin: 15px 0; font-weight: bold; display: none;}
+        .feedback.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb;}
+        .feedback.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;}
+        .feedback.warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7;}
+        .progress-indicator { text-align: center; margin: 20px 0; }
+        .progress-step { display: inline-block; width: 40px; height: 40px; border-radius: 50%; background: #dee2e6; color: #6c757d; line-height: 40px; margin: 0 10px; font-weight: bold;}
+        .progress-step.completed { background: #28a745; color: white;}
+        .progress-step.current { background: #667eea; color: white; animation: pulse 2s infinite;}
+        @keyframes pulse { 0% { transform: scale(1);} 50% { transform: scale(1.1);} 100% { transform: scale(1);}}
+        .hint-box { background: #e8f4fd; border-left: 4px solid #2196f3; padding: 15px; margin: 15px 0; border-radius: 0 5px 5px 0;}
+        .hint-box h4 { color: #1976d2; margin-bottom: 8px;}
+        .workspace-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;}
+        .source-area { background: #f8f9fa; border-radius: 10px; padding: 20px;}
+        .target-area { background: #ffffff; border-radius: 10px; padding: 20px;}
+        .validation-rules { background: #f1f3f4; border-radius: 8px; padding: 15px; margin: 15px 0; font-size: 0.9em;}
+        .rule { margin: 5px 0; padding: 5px 0;}
+        .rule.violated { color: #dc3545; font-weight: bold;}
+        .rule.satisfied { color: #28a745;}
+        .sql-preview { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin: 15px 0; font-family: 'Courier New', monospace; white-space: pre-wrap; max-height: 300px; overflow-y: auto;}
+        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -365,10 +98,11 @@
             </div>
         </div>
         <div class="phase-tabs">
-            <div class="phase-tab active" onclick="showPhase('analysis')">📊 Análisis</div>
-            <div class="phase-tab" onclick="showPhase('normalization')">🔧 Normalización</div>
-            <div class="phase-tab" onclick="showPhase('denormalization')">⚡ Desnormalización</div>
+            <div class="phase-tab active" data-phase="analysis">📊 Análisis</div>
+            <div class="phase-tab" data-phase="normalization">🔧 Normalización</div>
+            <div class="phase-tab" data-phase="denormalization">⚡ Desnormalización</div>
         </div>
+
         <!-- FASE 1: ANÁLISIS -->
         <div id="analysis" class="workspace active">
             <div class="original-table">
@@ -442,49 +176,32 @@
                 <button class="btn btn-success" onclick="startNormalization()">🚀 Comenzar Normalización</button>
             </div>
         </div>
+
         <!-- FASE 2: NORMALIZACIÓN -->
         <div id="normalization" class="workspace">
             <div class="workspace-grid">
                 <div class="source-area">
                     <h3>📦 Atributos Disponibles</h3>
                     <p style="margin-bottom: 15px;">Arrastra los atributos a las tablas correspondientes:</p>
-                    <div id="availableAttributes">
-                        <!-- Los atributos se cargarán aquí dinámicamente -->
-                    </div>
+                    <div id="availableAttributes"></div>
                 </div>
                 <div class="target-area">
                     <h3>🎯 Tablas Normalizadas</h3>
                     <div class="table-container" data-table-type="estudiante">
-                        <div class="table-header">
-                            <input type="text" placeholder="Nombre de la tabla..." value="Estudiantes">
-                        </div>
-                        <div class="attributes-area" id="estudiante-attributes">
-                            <div class="placeholder">Arrastra aquí los atributos de Estudiante</div>
-                        </div>
+                        <div class="table-header"><input type="text" placeholder="Nombre de la tabla..." value="Estudiantes"></div>
+                        <div class="attributes-area" id="estudiante-attributes"><div class="placeholder">Arrastra aquí los atributos de Estudiante</div></div>
                     </div>
                     <div class="table-container" data-table-type="curso">
-                        <div class="table-header">
-                            <input type="text" placeholder="Nombre de la tabla..." value="Cursos">
-                        </div>
-                        <div class="attributes-area" id="curso-attributes">
-                            <div class="placeholder">Arrastra aquí los atributos de Curso</div>
-                        </div>
+                        <div class="table-header"><input type="text" placeholder="Nombre de la tabla..." value="Cursos"></div>
+                        <div class="attributes-area" id="curso-attributes"><div class="placeholder">Arrastra aquí los atributos de Curso</div></div>
                     </div>
                     <div class="table-container" data-table-type="profesor">
-                        <div class="table-header">
-                            <input type="text" placeholder="Nombre de la tabla..." value="Profesores">
-                        </div>
-                        <div class="attributes-area" id="profesor-attributes">
-                            <div class="placeholder">Arrastra aquí los atributos de Profesor</div>
-                        </div>
+                        <div class="table-header"><input type="text" placeholder="Nombre de la tabla..." value="Profesores"></div>
+                        <div class="attributes-area" id="profesor-attributes"><div class="placeholder">Arrastra aquí los atributos de Profesor</div></div>
                     </div>
                     <div class="table-container" data-table-type="matricula">
-                        <div class="table-header">
-                            <input type="text" placeholder="Nombre de la tabla..." value="Matriculas">
-                        </div>
-                        <div class="attributes-area" id="matricula-attributes">
-                            <div class="placeholder">Arrastra aquí los atributos de Matrícula</div>
-                        </div>
+                        <div class="table-header"><input type="text" placeholder="Nombre de la tabla..." value="Matriculas"></div>
+                        <div class="attributes-area" id="matricula-attributes"><div class="placeholder">Arrastra aquí los atributos de Matrícula</div></div>
                     </div>
                 </div>
             </div>
@@ -497,6 +214,7 @@
             </div>
             <div class="sql-preview" id="sqlPreview" style="display: none;"></div>
         </div>
+
         <!-- FASE 3: DESNORMALIZACIÓN -->
         <div id="denormalization" class="workspace">
             <div class="hint-box">
@@ -506,19 +224,13 @@
             <div class="workspace-grid">
                 <div class="source-area">
                     <h3>📊 Tablas Normalizadas</h3>
-                    <div id="normalizedTables">
-                        <!-- Se mostrarán las tablas normalizadas -->
-                    </div>
+                    <div id="normalizedTables"></div>
                 </div>
                 <div class="target-area">
                     <h3>⚡ Tabla Desnormalizada para Reportes</h3>
                     <div class="table-container" data-table-type="reporte">
-                        <div class="table-header">
-                            <input type="text" placeholder="Nombre de la tabla..." value="ReporteAcademico">
-                        </div>
-                        <div class="attributes-area" id="reporte-attributes">
-                            <div class="placeholder">Arrastra aquí los atributos para el reporte</div>
-                        </div>
+                        <div class="table-header"><input type="text" placeholder="Nombre de la tabla..." value="ReporteAcademico"></div>
+                        <div class="attributes-area" id="reporte-attributes"><div class="placeholder">Arrastra aquí los atributos para el reporte</div></div>
                     </div>
                     <div class="hint-box">
                         <h4>💡 Pista:</h4>
@@ -536,10 +248,12 @@
         </div>
     </div>
     <script>
+        // ---- INICIALIZACIÓN DE FASES Y DELEGACIÓN DE TABS ----
         let currentPhase = 'analysis';
         let draggedElement = null;
         let normalizedTablesValid = false;
         let denormalizedTableValid = false;
+
         const correctNormalization = {
             estudiante: ['EstudianteID', 'NombreEstudiante', 'EmailEstudiante', 'CarreraEstudiante'],
             curso: ['CursoID', 'NombreCurso', 'Creditos', 'ProfesorID'],
@@ -550,18 +264,70 @@
             'EstudianteID', 'NombreEstudiante', 'CursoID', 'NombreCurso', 
             'ProfesorID', 'NombreProfesor', 'NotaFinal', 'Semestre'
         ];
-        function showPhase(phase) {
-            document.querySelectorAll('.workspace').forEach(workspace => {
-                workspace.classList.remove('active');
-            });
+
+        function showPhase(phase, tabElement) {
+            document.querySelectorAll('.workspace').forEach(workspace => workspace.classList.remove('active'));
             document.getElementById(phase).classList.add('active');
-            document.querySelectorAll('.phase-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
+            document.querySelectorAll('.phase-tab').forEach(tab => tab.classList.remove('active'));
+            if (tabElement) tabElement.classList.add('active');
             currentPhase = phase;
             updateProgressIndicator();
+            if (phase === 'normalization' || phase === 'denormalization') setupDragAndDrop();
         }
+        document.addEventListener('DOMContentLoaded', function () {
+            updateProgressIndicator();
+            document.querySelector('.phase-tabs').addEventListener('click', function (e) {
+                if (e.target.classList.contains('phase-tab')) {
+                    showPhase(e.target.dataset.phase, e.target);
+                }
+            });
+            setupDragAndDrop();
+        });
+
+        // ---- EL RESTO DE TU JS ORIGINAL VA AQUÍ ----
+        // Puedes pegar el JS tal cual del bloque anterior (el resto ya funcionaba, solo cambiamos los tabs).
+        // Por límite de espacio no lo repito aquí, pero puedes copiar tu código JS original o el que te pasé antes.
+        // ...
+        // Si necesitas el JS completo ya pegado y formateado aquí, dímelo y te lo pego en otra respuesta.
+
+        // ---- VARIABLES Y CONFIGURACIÓN ----
+        let currentPhase = 'analysis';
+        let draggedElement = null;
+        let normalizedTablesValid = false;
+        let denormalizedTableValid = false;
+        
+        const correctNormalization = {
+            estudiante: ['EstudianteID', 'NombreEstudiante', 'EmailEstudiante', 'CarreraEstudiante'],
+            curso: ['CursoID', 'NombreCurso', 'Creditos', 'ProfesorID'],
+            profesor: ['ProfesorID', 'NombreProfesor', 'DepartamentoProfesor'],
+            matricula: ['EstudianteID', 'CursoID', 'FechaMatricula', 'NotaFinal', 'Semestre']
+        };
+        const correctDenormalization = [
+            'EstudianteID', 'NombreEstudiante', 'CursoID', 'NombreCurso', 
+            'ProfesorID', 'NombreProfesor', 'NotaFinal', 'Semestre'
+        ];
+        
+        // ---- FASES Y TABS ----
+        function showPhase(phase, tabElement) {
+            document.querySelectorAll('.workspace').forEach(workspace => workspace.classList.remove('active'));
+            document.getElementById(phase).classList.add('active');
+            document.querySelectorAll('.phase-tab').forEach(tab => tab.classList.remove('active'));
+            if (tabElement) tabElement.classList.add('active');
+            currentPhase = phase;
+            updateProgressIndicator();
+            if (phase === 'normalization' || phase === 'denormalization') setupDragAndDrop();
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            updateProgressIndicator();
+            document.querySelector('.phase-tabs').addEventListener('click', function (e) {
+                if (e.target.classList.contains('phase-tab')) {
+                    showPhase(e.target.dataset.phase, e.target);
+                }
+            });
+            setupDragAndDrop();
+        });
+        
+        // ---- PROGRESO VISUAL ----
         function updateProgressIndicator() {
             const steps = ['step1', 'step2', 'step3'];
             const phases = ['analysis', 'normalization', 'denormalization'];
@@ -575,10 +341,13 @@
                 }
             });
         }
+        
+        // ---- INICIO DE NORMALIZACIÓN ----
         function startNormalization() {
-            showPhase('normalization');
+            showPhase('normalization', document.querySelector('.phase-tab[data-phase="normalization"]'));
             initializeNormalizationWorkspace();
         }
+        
         function initializeNormalizationWorkspace() {
             const originalAttributes = document.getElementById('originalAttributes');
             const availableAttributes = document.getElementById('availableAttributes');
@@ -590,36 +359,14 @@
             });
             setupDragAndDrop();
         }
+        
+        // ---- DRAG & DROP GENERAL ----
         function setupDragAndDrop() {
-            // Normalización
-            document.querySelectorAll('.table-container[data-table-type]').forEach(zone => {
-                zone.removeEventListener('dragover', dragOverHandler);
-                zone.removeEventListener('dragenter', dragEnterHandler);
-                zone.removeEventListener('dragleave', dragLeaveHandler);
-                zone.removeEventListener('drop', dropHandler);
-                zone.addEventListener('dragover', dragOverHandler);
-                zone.addEventListener('dragenter', dragEnterHandler);
-                zone.addEventListener('dragleave', dragLeaveHandler);
-                zone.addEventListener('drop', dropHandler);
-            });
-            // Desnormalización
-            if (document.querySelector('[data-table-type="reporte"]')) {
-                const reportZone = document.querySelector('[data-table-type="reporte"]');
-                reportZone.removeEventListener('dragover', dragOverHandlerDenorm);
-                reportZone.removeEventListener('dragenter', dragEnterHandlerDenorm);
-                reportZone.removeEventListener('dragleave', dragLeaveHandlerDenorm);
-                reportZone.removeEventListener('drop', dropHandlerDenorm);
-                reportZone.addEventListener('dragover', dragOverHandlerDenorm);
-                reportZone.addEventListener('dragenter', dragEnterHandlerDenorm);
-                reportZone.addEventListener('dragleave', dragLeaveHandlerDenorm);
-                reportZone.addEventListener('drop', dropHandlerDenorm);
-            }
+            // Para atributos disponibles
             document.querySelectorAll('.attribute').forEach(attr => {
                 attr.setAttribute('draggable', true);
-                attr.removeEventListener('dragstart', dragStartHandler);
-                attr.removeEventListener('dragend', dragEndHandler);
-                attr.addEventListener('dragstart', dragStartHandler);
-                attr.addEventListener('dragend', dragEndHandler);
+                attr.ondragstart = dragStartHandler;
+                attr.ondragend = dragEndHandler;
                 attr.ondblclick = function () {
                     if (currentPhase === 'normalization') {
                         const availableArea = document.getElementById('availableAttributes');
@@ -655,8 +402,24 @@
                     setupDragAndDrop();
                 };
             });
+            // Para zonas de drop en normalización
+            document.querySelectorAll('.table-container[data-table-type]').forEach(zone => {
+                zone.ondragover = dragOverHandler;
+                zone.ondragenter = dragEnterHandler;
+                zone.ondragleave = dragLeaveHandler;
+                zone.ondrop = dropHandler;
+            });
+            // Para zona de drop en desnormalización
+            if (document.querySelector('[data-table-type="reporte"]')) {
+                const reportZone = document.querySelector('[data-table-type="reporte"]');
+                reportZone.ondragover = dragOverHandlerDenorm;
+                reportZone.ondragenter = dragEnterHandlerDenorm;
+                reportZone.ondragleave = dragLeaveHandlerDenorm;
+                reportZone.ondrop = dropHandlerDenorm;
+            }
         }
-        // Drag para normalización
+        
+        // Drag & drop normalización
         function dragStartHandler(e) {
             draggedElement = e.target;
             e.target.classList.add('dragging');
@@ -672,14 +435,10 @@
         }
         function dragEnterHandler(e) {
             e.preventDefault();
-            if (draggedElement) {
-                this.classList.add('drop-zone');
-            }
+            if (draggedElement) this.classList.add('drop-zone');
         }
         function dragLeaveHandler(e) {
-            if (!this.contains(e.relatedTarget)) {
-                this.classList.remove('drop-zone');
-            }
+            if (!this.contains(e.relatedTarget)) this.classList.remove('drop-zone');
         }
         function dropHandler(e) {
             e.preventDefault();
@@ -702,26 +461,24 @@
                 dropZone.classList.add('error');
                 const expectedTable = draggedElement.dataset.table;
                 showFeedback('❌ Error: ' + attributeName + ' no pertenece a la tabla ' + tableType + '. Pista: pertenece a ' + expectedTable, 'error', 'normalizationFeedback');
-                setTimeout(() => {
-                    dropZone.classList.remove('error');
-                }, 1000);
+                setTimeout(() => { dropZone.classList.remove('error'); }, 1000);
             }
         }
-        // Drag para desnormalización
+        function validateAttributePlacement(attributeName, tableType) {
+            return correctNormalization[tableType] && correctNormalization[tableType].includes(attributeName);
+        }
+        
+        // Drag & drop desnormalización
         function dragOverHandlerDenorm(e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
         }
         function dragEnterHandlerDenorm(e) {
             e.preventDefault();
-            if (draggedElement) {
-                this.classList.add('drop-zone');
-            }
+            if (draggedElement) this.classList.add('drop-zone');
         }
         function dragLeaveHandlerDenorm(e) {
-            if (!this.contains(e.relatedTarget)) {
-                this.classList.remove('drop-zone');
-            }
+            if (!this.contains(e.relatedTarget)) this.classList.remove('drop-zone');
         }
         function dropHandlerDenorm(e) {
             e.preventDefault();
@@ -743,18 +500,11 @@
             } else {
                 dropZone.classList.add('error');
                 showFeedback('❌ Error: ' + attributeName + ' no es necesario para este reporte. Los reportes deben incluir solo información esencial.', 'error', 'denormalizationFeedback');
-                setTimeout(() => {
-                    dropZone.classList.remove('error');
-                }, 1000);
+                setTimeout(() => { dropZone.classList.remove('error'); }, 1000);
             }
         }
-        function validateAttributePlacement(attributeName, tableType) {
-            return correctNormalization[tableType] && correctNormalization[tableType].includes(attributeName);
-        }
-        // ... Resto de funciones originales igual (validateNormalization, generateSQL, etc.)
-        // Puedes pegar tu bloque original de funciones JS restantes aquí, sin modificar.
-        // Por brevedad no lo duplico todo aquí, pero no hay cambios en esas funciones.
-        // ... Incluye tu generateSQL, validateNormalization, etc.
+        
+        // ---- VALIDACIONES Y SQL ----
         function validateNormalization() {
             const tables = ['estudiante', 'curso', 'profesor', 'matricula'];
             let allCorrect = true;
@@ -772,12 +522,8 @@
                 } else {
                     allCorrect = false;
                     feedback += `❌ Tabla ${tableType}:\n`;
-                    if (missing.length > 0) {
-                        feedback += `   Faltan: ${missing.join(', ')}\n`;
-                    }
-                    if (extra.length > 0) {
-                        feedback += `   Sobran: ${extra.join(', ')}\n`;
-                    }
+                    if (missing.length > 0) feedback += `   Faltan: ${missing.join(', ')}\n`;
+                    if (extra.length > 0) feedback += `   Sobran: ${extra.join(', ')}\n`;
                 }
             });
             if (allCorrect) {
@@ -793,50 +539,50 @@
         function generateSQL() {
             if (!normalizedTablesValid) return;
             const sqlCode = `-- Estructura Normalizada (3FN)
-CREATE TABLE Estudiantes (
-    EstudianteID INT PRIMARY KEY,
-    NombreEstudiante VARCHAR(100),
-    EmailEstudiante VARCHAR(100),
-    CarreraEstudiante VARCHAR(80)
-);
-
-CREATE TABLE Profesores (
-    ProfesorID INT PRIMARY KEY,
-    NombreProfesor VARCHAR(100),
-    DepartamentoProfesor VARCHAR(50)
-);
-
-CREATE TABLE Cursos (
-    CursoID INT PRIMARY KEY,
-    NombreCurso VARCHAR(150),
-    Creditos INT,
-    ProfesorID INT,
-    FOREIGN KEY (ProfesorID) REFERENCES Profesores(ProfesorID)
-);
-
-CREATE TABLE Matriculas (
-    EstudianteID INT,
-    CursoID INT,
-    FechaMatricula DATE,
-    NotaFinal DECIMAL(4,2),
-    Semestre VARCHAR(10),
-    PRIMARY KEY (EstudianteID, CursoID),
-    FOREIGN KEY (EstudianteID) REFERENCES Estudiantes(EstudianteID),
-    FOREIGN KEY (CursoID) REFERENCES Cursos(CursoID)
-);
-
--- Consulta que requiere múltiples JOINs (LENTA)
-SELECT 
-    e.NombreEstudiante,
-    c.NombreCurso,
-    p.NombreProfesor,
-    m.NotaFinal,
-    m.Semestre
-FROM Matriculas m
-INNER JOIN Estudiantes e ON m.EstudianteID = e.EstudianteID
-INNER JOIN Cursos c ON m.CursoID = c.CursoID
-INNER JOIN Profesores p ON c.ProfesorID = p.ProfesorID
-WHERE m.Semestre = '2024-I';`;
+        CREATE TABLE Estudiantes (
+            EstudianteID INT PRIMARY KEY,
+            NombreEstudiante VARCHAR(100),
+            EmailEstudiante VARCHAR(100),
+            CarreraEstudiante VARCHAR(80)
+        );
+        
+        CREATE TABLE Profesores (
+            ProfesorID INT PRIMARY KEY,
+            NombreProfesor VARCHAR(100),
+            DepartamentoProfesor VARCHAR(50)
+        );
+        
+        CREATE TABLE Cursos (
+            CursoID INT PRIMARY KEY,
+            NombreCurso VARCHAR(150),
+            Creditos INT,
+            ProfesorID INT,
+            FOREIGN KEY (ProfesorID) REFERENCES Profesores(ProfesorID)
+        );
+        
+        CREATE TABLE Matriculas (
+            EstudianteID INT,
+            CursoID INT,
+            FechaMatricula DATE,
+            NotaFinal DECIMAL(4,2),
+            Semestre VARCHAR(10),
+            PRIMARY KEY (EstudianteID, CursoID),
+            FOREIGN KEY (EstudianteID) REFERENCES Estudiantes(EstudianteID),
+            FOREIGN KEY (CursoID) REFERENCES Cursos(CursoID)
+        );
+        
+        -- Consulta que requiere múltiples JOINs (LENTA)
+        SELECT 
+            e.NombreEstudiante,
+            c.NombreCurso,
+            p.NombreProfesor,
+            m.NotaFinal,
+            m.Semestre
+        FROM Matriculas m
+        INNER JOIN Estudiantes e ON m.EstudianteID = e.EstudianteID
+        INNER JOIN Cursos c ON m.CursoID = c.CursoID
+        INNER JOIN Profesores p ON c.ProfesorID = p.ProfesorID
+        WHERE m.Semestre = '2024-I';`;
             document.getElementById('sqlPreview').textContent = sqlCode;
             document.getElementById('sqlPreview').style.display = 'block';
             showFeedback('✅ SQL generado correctamente. Ahora puedes proceder a la desnormalización.', 'success', 'normalizationFeedback');
@@ -927,12 +673,8 @@ WHERE m.Semestre = '2024-I';`;
                 document.getElementById('performanceBtn').disabled = false;
                 showFeedback(feedback, 'success', 'denormalizationFeedback');
             } else {
-                if (missing.length > 0) {
-                    feedback += `❌ Faltan campos importantes: ${missing.join(', ')}\n`;
-                }
-                if (extra.length > 0) {
-                    feedback += `⚠️ Campos innecesarios: ${extra.join(', ')}\n`;
-                }
+                if (missing.length > 0) feedback += `❌ Faltan campos importantes: ${missing.join(', ')}\n`;
+                if (extra.length > 0) feedback += `⚠️ Campos innecesarios: ${extra.join(', ')}\n`;
                 feedback += '\n💡 Recuerda: incluye solo lo necesario para el reporte de notas.';
                 showFeedback(feedback, 'error', 'denormalizationFeedback');
             }
@@ -940,47 +682,47 @@ WHERE m.Semestre = '2024-I';`;
         function generateDenormalizedSQL() {
             if (!denormalizedTableValid) return;
             const sqlCode = `-- Tabla Desnormalizada para Reportes (Optimizada)
-CREATE TABLE ReporteAcademico (
-    EstudianteID INT,
-    NombreEstudiante VARCHAR(100), -- Redundancia intencional
-    CursoID INT,
-    NombreCurso VARCHAR(150),      -- Redundancia intencional
-    ProfesorID INT,
-    NombreProfesor VARCHAR(100),   -- Redundancia intencional
-    NotaFinal DECIMAL(4,2),
-    Semestre VARCHAR(10),
-    FechaActualizacion DATETIME DEFAULT GETDATE()
-);
-
--- Consulta Optimizada (SIN JOINs - RÁPIDA)
-SELECT 
-    NombreEstudiante,
-    NombreCurso,
-    NombreProfesor,
-    NotaFinal,
-    Semestre
-FROM ReporteAcademico
-WHERE Semestre = '2024-I';
-
--- Procedimiento para mantener sincronización
-CREATE PROCEDURE sp_ActualizarReporteAcademico
-AS
-BEGIN
-    TRUNCATE TABLE ReporteAcademico;
-    INSERT INTO ReporteAcademico (
-        EstudianteID, NombreEstudiante, CursoID, NombreCurso,
-        ProfesorID, NombreProfesor, NotaFinal, Semestre
-    )
-    SELECT 
-        e.EstudianteID, e.NombreEstudiante,
-        c.CursoID, c.NombreCurso,
-        p.ProfesorID, p.NombreProfesor,
-        m.NotaFinal, m.Semestre
-    FROM Matriculas m
-    INNER JOIN Estudiantes e ON m.EstudianteID = e.EstudianteID
-    INNER JOIN Cursos c ON m.CursoID = c.CursoID
-    INNER JOIN Profesores p ON c.ProfesorID = p.ProfesorID;
-END;`;
+        CREATE TABLE ReporteAcademico (
+            EstudianteID INT,
+            NombreEstudiante VARCHAR(100), -- Redundancia intencional
+            CursoID INT,
+            NombreCurso VARCHAR(150),      -- Redundancia intencional
+            ProfesorID INT,
+            NombreProfesor VARCHAR(100),   -- Redundancia intencional
+            NotaFinal DECIMAL(4,2),
+            Semestre VARCHAR(10),
+            FechaActualizacion DATETIME DEFAULT GETDATE()
+        );
+        
+        -- Consulta Optimizada (SIN JOINs - RÁPIDA)
+        SELECT 
+            NombreEstudiante,
+            NombreCurso,
+            NombreProfesor,
+            NotaFinal,
+            Semestre
+        FROM ReporteAcademico
+        WHERE Semestre = '2024-I';
+        
+        -- Procedimiento para mantener sincronización
+        CREATE PROCEDURE sp_ActualizarReporteAcademico
+        AS
+        BEGIN
+            TRUNCATE TABLE ReporteAcademico;
+            INSERT INTO ReporteAcademico (
+                EstudianteID, NombreEstudiante, CursoID, NombreCurso,
+                ProfesorID, NombreProfesor, NotaFinal, Semestre
+            )
+            SELECT 
+                e.EstudianteID, e.NombreEstudiante,
+                c.CursoID, c.NombreCurso,
+                p.ProfesorID, p.NombreProfesor,
+                m.NotaFinal, m.Semestre
+            FROM Matriculas m
+            INNER JOIN Estudiantes e ON m.EstudianteID = e.EstudianteID
+            INNER JOIN Cursos c ON m.CursoID = c.CursoID
+            INNER JOIN Profesores p ON c.ProfesorID = p.ProfesorID;
+        END;`;
             document.getElementById('denormSqlPreview').textContent = sqlCode;
             document.getElementById('denormSqlPreview').style.display = 'block';
             showFeedback('✅ SQL de desnormalización generado correctamente. ¡Puedes ver la mejora de rendimiento!', 'success', 'denormalizationFeedback');
@@ -1016,20 +758,18 @@ END;`;
             document.getElementById('step3').classList.add('completed');
             showFeedback('🎉 ¡Laboratorio completado exitosamente!', 'success', 'denormalizationFeedback');
         }
+        
+        // ---- FEEDBACK ----
         function showFeedback(message, type, containerId) {
             const feedback = document.getElementById(containerId);
             feedback.className = `feedback ${type}`;
             feedback.textContent = message;
             feedback.style.display = 'block';
             if (type === 'success') {
-                setTimeout(() => {
-                    feedback.style.display = 'none';
-                }, 5000);
+                setTimeout(() => { feedback.style.display = 'none'; }, 5000);
             }
         }
-        document.addEventListener('DOMContentLoaded', function() {
-            updateProgressIndicator();
-        });
+
     </script>
 </body>
 </html>
