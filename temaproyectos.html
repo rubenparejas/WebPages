@@ -1,191 +1,206 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestión de Proyectos - Interactivo</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #667eea;
-      --secondary: #764ba2;
-      --bg-light: #f7f9fc;
-      --text-dark: #333;
-      --text-light: #fff;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Poppins', sans-serif; background: var(--bg-light); color: var(--text-dark); }
-    header { background: linear-gradient(135deg, var(--primary), var(--secondary)); padding: 1rem; position: sticky; top: 0; z-index: 100; }
-    header nav { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
-    header nav a { color: var(--text-light); text-decoration: none; font-weight: 600; padding: 0.5rem; }
-    header nav a:hover { background: rgba(255,255,255,0.2); border-radius: 4px; }
-    main { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-    section { background: var(--text-light); border-radius: 8px; margin-bottom: 2rem; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    h2 { margin-bottom: 1rem; color: var(--primary); }
-    .flex { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .card { background: var(--bg-light); border: 1px solid #ddd; border-radius: 4px; padding: 1rem; flex: 1; min-width: 150px; position: relative; transition: transform 0.3s; }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-    .dropzone { min-height: 60px; border: 2px dashed var(--primary); border-radius: 4px; padding: 1rem; background: var(--text-light); transition: background .3s; }
-    .dropzone.dragover { background: #e0e7ff; }
-    button { margin-top: 1rem; background: var(--primary); color: #fff; padding: 0.6rem 1.2rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; transition: background .3s; }
-    button:hover { background: #5a6ad9; }
-    label { display: block; margin-top: 0.5rem; }
-    input, select, textarea { padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; width: 100%; margin-top: 0.5rem; }
-    canvas { width: 100%; height: auto; }
-    pre { background: #f0f0f0; padding: 1rem; border-radius: 4px; overflow-x: auto; }
-    svg { width: 100%; height: 260px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio de Normalización - SQL Server</title>
+    <style>
+        /* ... (todo tu CSS original, sin cambios) ... */
+        /* Puedes pegar tu bloque CSS original aquí */
+    </style>
 </head>
 <body>
-  <header>
-    <nav>
-      <a href="#intro">Inicio</a>
-      <a href="#crucigrama">Crucigrama</a>
-      <a href="#triangulo">Triángulo</a>
-      <a href="#wbs">WBS</a>
-      <a href="#gantt">Gantt</a>
-      <a href="#critical-path">Ruta Crítica</a>
-      <a href="#casos">Casos</a>
-      <a href="#quiz-final">Quiz</a>
-    </nav>
-  </header>
-  <main>
-    <!-- 1. Introducción Animada -->
-    <section id="intro">
-      <h2>1. Introducción Animada</h2>
-      <iframe src="https://www.youtube.com/embed/1LqNkmOnaEY" allowfullscreen></iframe>
-    </section>
+    <div class="container">
+        <!-- ... (todo tu HTML original sin cambios, hasta el <script>) ... -->
+        <!-- Puedes pegar aquí todo el HTML original hasta el script -->
+    </div>
 
-    <!-- 2. Crucigrama de términos mejorado -->
-    <section id="crucigrama">
-      <h2>2. Crucigrama de Términos</h2>
-      <p>Completa el crucigrama:</p>
-      <div style="overflow:auto;">
-        <table id="crossword" style="border-collapse: collapse; margin: auto;">
-          <tr>
-            <td><input maxlength="1" id="r1c1"></td>
-            <td><input maxlength="1" id="r1c2"></td>
-            <td><input maxlength="1" id="r1c3"></td>
-            <td><input maxlength="1" disabled></td>
-            <td><input maxlength="1" disabled></td>
-          </tr>
-          <tr>
-            <td><input maxlength="1" disabled></td>
-            <td><input maxlength="1" disabled></td>
-            <td><input maxlength="1" id="r2c3"></td>
-            <td><input maxlength="1" disabled></td>
-            <td><input maxlength="1" disabled></td>
-          </tr>
-          <tr>
-            <td><input maxlength="1" id="r3c1"></td>
-            <td><input maxlength="1" id="r3c2"></td>
-            <td><input maxlength="1" id="r3c3"></td>
-            <td><input maxlength="1" disabled></td>
-            <td><input maxlength="1" id="r3c5"></td>
-          </tr>
-          <tr>
-            <td><input maxlength="1" disabled></td>
-            <td><input maxlength="1" disabled></td>
-            <td><input maxlength="1" disabled></td>
-            <td><input maxlength="1" disabled></td>
-            <td><input maxlength="1" id="r4c5"></td>
-          </tr>
-        </table>
-      </div>
-      <div class="flex" style="margin-top:1rem;">
-        <div class="card"><strong>Horizontal 1:</strong> Método de planificación que identifica tareas críticas.</div>
-        <div class="card"><strong>Horizontal 3:</strong> Desglosa un proyecto en paquetes de trabajo.</div>
-        <div class="card"><strong>Vertical 3:</strong> Técnica que controla el valor ganado.</div>
-        <div class="card"><strong>Vertical 5:</strong> Técnica de revisión y evaluación de proyectos.</div>
-      </div>
-      <button onclick="checkCrossword()">Verificar Crucigrama</button>
-      <p id="crosswordResult"></p>
-    </section>
+    <script>
+        let currentPhase = 'analysis';
+        let draggedElement = null;
+        let normalizedTablesValid = false;
+        let denormalizedTableValid = false;
 
-    <!-- 3. Triángulo de hierro con valores dinámicos -->
-    <section id="triangulo">
-      <h2>3. Triángulo de Hierro</h2>
-      <div class="flex">
-        <div style="flex:1;">
-          <label>Tiempo: <span id="valTime">50</span>% <input type="range" id="timeRange" min="0" max="100" value="50"></label>
-          <label>Costo: <span id="valCost">50</span>% <input type="range" id="costRange" min="0" max="100" value="50"></label>
-          <label>Alcance: <span id="valScope">50</span>% <input type="range" id="scopeRange" min="0" max="100" value="50"></label>
-        </div>
-        <div style="flex:2;">
-          <svg id="triangleSVG"></svg>
-        </div>
-      </div>
-    </section>
+        // Definir la estructura correcta para validación
+        const correctNormalization = {
+            estudiante: ['EstudianteID', 'NombreEstudiante', 'EmailEstudiante', 'CarreraEstudiante'],
+            curso: ['CursoID', 'NombreCurso', 'Creditos', 'ProfesorID'],
+            profesor: ['ProfesorID', 'NombreProfesor', 'DepartamentoProfesor'],
+            matricula: ['EstudianteID', 'CursoID', 'FechaMatricula', 'NotaFinal', 'Semestre']
+        };
 
-    <!-- 4. WBS dinámico -->
-    <section id="wbs">
-      <h2>4. Creación de una WBS Dinámica</h2>
-      <div class="flex">
-        <div style="flex:1;">
-          <input type="text" id="newTask" placeholder="Nombre de la tarea">
-          <select id="parentTask"><option value="">-- Sin padre (raíz) --</option></select>
-          <button onclick="addTask()">Añadir Tarea</button>
-        </div>
-        <div style="flex:2;">
-          <ul id="wbsList"></ul>
-        </div>
-      </div>
-    </section>
+        const correctDenormalization = [
+            'EstudianteID', 'NombreEstudiante', 'CursoID', 'NombreCurso', 
+            'ProfesorID', 'NombreProfesor', 'NotaFinal', 'Semestre'
+        ];
 
-    <!-- Secciones Gantt, Ruta Crítica, Casos y Quiz similares al anterior -->
-    <!-- ... (omito por brevedad, mantiene funcionalidad previa) ... -->
+        function showPhase(phase) {
+            // Ocultar todas las fases
+            document.querySelectorAll('.workspace').forEach(workspace => {
+                workspace.classList.remove('active');
+            });
+            // Mostrar fase seleccionada
+            document.getElementById(phase).classList.add('active');
+            // Actualizar tabs
+            document.querySelectorAll('.phase-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            currentPhase = phase;
+            updateProgressIndicator();
+        }
 
-  </main>
-  <script>
-    // 2. Crucigrama
-    function checkCrossword() {
-      const answers = { r1c1:'C',r1c2:'P',r1c3:'M', r3c1:'W',r3c2:'B',r3c3:'S', r2c3:'E',r3c5:'P',r4c5:'T' };
-      let correct=0, total=Object.keys(answers).length;
-      for(const id in answers){ const val=document.getElementById(id).value.toUpperCase(); if(val===answers[id]) correct++; }
-      crosswordResult.innerText = `Aciertos: ${correct}/${total}`;
-    }
+        function updateProgressIndicator() {
+            const steps = ['step1', 'step2', 'step3'];
+            const phases = ['analysis', 'normalization', 'denormalization'];
+            steps.forEach((step, index) => {
+                const stepElement = document.getElementById(step);
+                stepElement.classList.remove('current', 'completed');
+                if (phases[index] === currentPhase) {
+                    stepElement.classList.add('current');
+                } else if (phases.indexOf(currentPhase) > index) {
+                    stepElement.classList.add('completed');
+                }
+            });
+        }
 
-    // 3. Triángulo dinámico
-    const tR=document.getElementById('timeRange'), cR=document.getElementById('costRange'), sR=document.getElementById('scopeRange');
-    [tR,cR,sR].forEach(el=>el.oninput=updateTriangle);
-    function updateTriangle(){
-      document.getElementById('valTime').innerText=tR.value;
-      document.getElementById('valCost').innerText=cR.value;
-      document.getElementById('valScope').innerText=sR.value;
-      const t=tR.value/100, c=cR.value/100, s=sR.value/100;
-      const points=[[200,10],[10,250],[390,250]];
-      const svg=triangleSVG; svg.innerHTML='';
-      const pts=points.map((p,i)=>[p[0]*[t,c,s][i]+(1-[t,c,s][i])*points[1][0],p[1]*[t,c,s][i]+(1-[t,c,s][i])*points[0][1]]);
-      const poly=document.createElementNS('http://www.w3.org/2000/svg','polygon');
-      poly.setAttribute('points',pts.map(p=>p.join(',')).join(' '));
-      poly.setAttribute('fill','rgba(102,126,234,0.5)'); poly.setAttribute('stroke','#667eea'); poly.setAttribute('stroke-width','2');
-      svg.appendChild(poly);
-    }
-    updateTriangle();
+        function startNormalization() {
+            showPhase('normalization');
+            initializeNormalizationWorkspace();
+        }
 
-    // 4. WBS dinámico
-    let tasks=[];
-    function addTask() {
-      const name=newTask.value.trim(), parent=parentTask.value;
-      if(!name) return;
-      const id=Date.now().toString(); tasks.push({id,name,parent});
-      newTask.value='';
-      // actualizar select
-      parentTask.innerHTML='<option value="">-- Sin padre (raíz) --</option>' +
-        tasks.map(t=>`<option value="${t.id}">${t.name}</option>`).join('');
-      renderWBS();
-    }
-    function renderWBS() {
-      const map={}; tasks.forEach(t=>map[t.id]={...t,children:[]});
-      tasks.forEach(t=>{ if(t.parent) map[t.parent].children.push(map[t.id]); });
-      const roots=tasks.filter(t=>!t.parent).map(t=>map[t.id]);
-      const ul=document.getElementById('wbsList'); ul.innerHTML='';
-      function buildList(items,container){ items.forEach(i=>{
-        const li=document.createElement('li'); li.textContent=i.name;
-        container.appendChild(li);
-        if(i.children.length){ const sub=document.createElement('ul'); li.appendChild(sub); buildList(i.children,sub);} }); }
-      buildList(roots,ul);
-    }
-  </script>
+        function initializeNormalizationWorkspace() {
+            const originalAttributes = document.getElementById('originalAttributes');
+            const availableAttributes = document.getElementById('availableAttributes');
+            // Limpiar área disponible
+            availableAttributes.innerHTML = '';
+            // Clonar atributos al área de trabajo
+            const attributes = originalAttributes.querySelectorAll('.attribute');
+            attributes.forEach(attr => {
+                const cloned = attr.cloneNode(true);
+                availableAttributes.appendChild(cloned);
+            });
+            setupDragAndDrop();
+        }
+
+        // ==== DRAG AND DROP CORREGIDO ====
+        function setupDragAndDrop() {
+            // Todas las zonas de destino
+            document.querySelectorAll('.table-container[data-table-type]').forEach(zone => {
+                zone.removeEventListener('dragover', dragOverHandler);
+                zone.removeEventListener('dragenter', dragEnterHandler);
+                zone.removeEventListener('dragleave', dragLeaveHandler);
+                zone.removeEventListener('drop', dropHandler);
+                zone.addEventListener('dragover', dragOverHandler);
+                zone.addEventListener('dragenter', dragEnterHandler);
+                zone.addEventListener('dragleave', dragLeaveHandler);
+                zone.addEventListener('drop', dropHandler);
+            });
+
+            // Todos los atributos (en cualquier lado)
+            document.querySelectorAll('.attribute').forEach(attr => {
+                attr.setAttribute('draggable', true);
+                attr.removeEventListener('dragstart', dragStartHandler);
+                attr.removeEventListener('dragend', dragEndHandler);
+                attr.addEventListener('dragstart', dragStartHandler);
+                attr.addEventListener('dragend', dragEndHandler);
+            });
+        }
+        function dragStartHandler(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        function dragEndHandler(e) {
+            e.target.classList.remove('dragging');
+            draggedElement = null;
+        }
+        function dragOverHandler(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+        function dragEnterHandler(e) {
+            e.preventDefault();
+            if (draggedElement) {
+                this.classList.add('drop-zone');
+            }
+        }
+        function dragLeaveHandler(e) {
+            if (!this.contains(e.relatedTarget)) {
+                this.classList.remove('drop-zone');
+            }
+        }
+        function dropHandler(e) {
+            e.preventDefault();
+            handleDrop(e, this);
+        }
+
+        function handleDrop(e, dropZone) {
+            dropZone.classList.remove('drop-zone');
+            if (!draggedElement) return;
+            const tableType = dropZone.dataset.tableType;
+            const attributeName = draggedElement.textContent.split('\n')[0].trim();
+            if (validateAttributePlacement(attributeName, tableType)) {
+                const attributesArea = dropZone.querySelector('.attributes-area');
+                const placeholder = attributesArea.querySelector('.placeholder');
+                if (placeholder) {
+                    placeholder.remove();
+                    attributesArea.classList.add('has-attributes');
+                }
+                attributesArea.appendChild(draggedElement); // <-- mueve el nodo (no clona)
+                showFeedback('✅ ¡Correcto! ' + attributeName + ' pertenece a la tabla ' + tableType, 'success', 'normalizationFeedback');
+                setupAttributeForRemoval(draggedElement, attributesArea);
+                setupDragAndDrop(); // reactiva para el nuevo DOM
+            } else {
+                dropZone.classList.add('error');
+                const expectedTable = draggedElement.dataset.table;
+                showFeedback('❌ Error: ' + attributeName + ' no pertenece a la tabla ' + tableType + '. Pista: pertenece a ' + expectedTable, 'error', 'normalizationFeedback');
+                setTimeout(() => {
+                    dropZone.classList.remove('error');
+                }, 1000);
+            }
+        }
+        function setupAttributeForRemoval(attribute, parentArea) {
+            attribute.ondblclick = function () {
+                const availableArea = document.getElementById('availableAttributes');
+                availableArea.appendChild(this);
+                // Verificar si el área padre se queda vacía
+                if ([...parentArea.children].filter(child => !child.classList.contains('placeholder')).length === 0) {
+                    parentArea.classList.remove('has-attributes');
+                    // Restaurar placeholder
+                    const tableType = parentArea.closest('.table-container').dataset.tableType;
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'placeholder';
+                    placeholder.textContent = {
+                        'estudiante': 'Arrastra aquí los atributos de Estudiante',
+                        'curso': 'Arrastra aquí los atributos de Curso',
+                        'profesor': 'Arrastra aquí los atributos de Profesor',
+                        'matricula': 'Arrastra aquí los atributos de Matrícula'
+                    }[tableType] || 'Arrastra aquí los atributos';
+                    parentArea.appendChild(placeholder);
+                }
+                showFeedback('Atributo devuelto al área disponible', 'warning', 'normalizationFeedback');
+                setupDragAndDrop();
+            };
+        }
+
+        // ==== RESTO DE TU JS ORIGINAL (sin cambios, puedes pegarlo aquí) ====
+        // ... 
+        // TODO: pega aquí el resto de tus funciones JS del código original (validaciones, generación SQL, etc)
+        // ... 
+        // Ejemplo:
+        function validateAttributePlacement(attributeName, tableType) {
+            return correctNormalization[tableType] && correctNormalization[tableType].includes(attributeName);
+        }
+
+        // ... resto de funciones (validateNormalization, generateSQL, etc.) igual a tu código original ...
+        // ... (todo tu bloque de funciones después de setupAttributeForRemoval) ...
+        // ... puedes pegar aquí desde "function validateNormalization() {" en adelante ...
+
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgressIndicator();
+        });
+    </script>
 </body>
 </html>
