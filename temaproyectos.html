@@ -5,43 +5,556 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laboratorio de Normalización - SQL Server</title>
     <style>
-        /* ... (todo tu CSS original, sin cambios) ... */
-        /* Puedes pegar tu bloque CSS original aquí */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .case-scenario {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .scenario-title {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .phase-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 5px;
+        }
+        .phase-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        .phase-tab.active {
+            background: #667eea;
+            color: white;
+        }
+        .phase-tab:hover:not(.active) {
+            background: #e3f2fd;
+        }
+        .workspace {
+            display: none;
+            min-height: 600px;
+        }
+        .workspace.active {
+            display: block;
+        }
+        .original-table {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .table-container {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            min-height: 200px;
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+        }
+        .table-container.drop-zone {
+            border-color: #667eea;
+            background: #f8f9ff;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+        .table-container.error {
+            border-color: #dc3545;
+            background: #f8d7da;
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .table-header {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .table-header input {
+            background: transparent;
+            border: none;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1em;
+            width: 100%;
+        }
+        .table-header input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        .attributes-area {
+            min-height: 100px;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        .attributes-area.has-attributes {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+        .attributes-area .placeholder {
+            color: #999;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            user-select: none;
+            pointer-events: none;
+        }
+        .attribute {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: grab;
+            user-select: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .attribute:hover {
+            background: #bbdefb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .attribute.dragging {
+            opacity: 0.7;
+            cursor: grabbing;
+            transform: rotate(3deg);
+            z-index: 1000;
+        }
+        .attribute.primary-key {
+            background: #ffe0b2;
+            border-color: #ff9800;
+        }
+        .attribute.foreign-key {
+            background: #c8e6c9;
+            border-color: #4caf50;
+        }
+        .attribute-info {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 3px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-warning {
+            background: #ff9800;
+        }
+        .btn-warning:hover {
+            background: #f57c00;
+        }
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+            display: none;
+        }
+        .feedback.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .feedback.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .feedback.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .progress-indicator {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .progress-step {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #dee2e6;
+            color: #6c757d;
+            line-height: 40px;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+        .progress-step.completed {
+            background: #28a745;
+            color: white;
+        }
+        .progress-step.current {
+            background: #667eea;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .hint-box {
+            background: #e8f4fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .hint-box h4 {
+            color: #1976d2;
+            margin-bottom: 8px;
+        }
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .source-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .target-area {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .validation-rules {
+            background: #f1f3f4;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.9em;
+        }
+        .rule {
+            margin: 5px 0;
+            padding: 5px 0;
+        }
+        .rule.violated {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .rule.satisfied {
+            color: #28a745;
+        }
+        .sql-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- ... (todo tu HTML original sin cambios, hasta el <script>) ... -->
-        <!-- Puedes pegar aquí todo el HTML original hasta el script -->
+        <div class="header">
+            <h1>🧪 Laboratorio de Normalización</h1>
+            <p>Caso Práctico: Sistema de Gestión de Cursos Universitarios</p>
+            <div class="progress-indicator">
+                <div class="progress-step current" id="step1">1</div>
+                <div class="progress-step" id="step2">2</div>
+                <div class="progress-step" id="step3">3</div>
+            </div>
+        </div>
+        <div class="case-scenario">
+            <div class="scenario-title">📚 Escenario: Universidad "San Marcos"</div>
+            <p><strong>Contexto:</strong> La universidad tiene un sistema legacy con una tabla que almacena información de estudiantes, cursos y profesores todo mezclado. Tu tarea es normalizar esta tabla y luego crear una versión desnormalizada optimizada para reportes.</p>
+            <div class="hint-box">
+                <h4>💡 Instrucciones:</h4>
+                <p>1. <strong>Analiza</strong> la tabla original e identifica las dependencias funcionales</p>
+                <p>2. <strong>Arrastra</strong> los atributos para crear tablas normalizadas (3FN)</p>
+                <p>3. <strong>Diseña</strong> una tabla desnormalizada para reportes frecuentes</p>
+            </div>
+        </div>
+        <div class="phase-tabs">
+            <div class="phase-tab active" onclick="showPhase('analysis')">📊 Análisis</div>
+            <div class="phase-tab" onclick="showPhase('normalization')">🔧 Normalización</div>
+            <div class="phase-tab" onclick="showPhase('denormalization')">⚡ Desnormalización</div>
+        </div>
+        <!-- FASE 1: ANÁLISIS -->
+        <div id="analysis" class="workspace active">
+            <div class="original-table">
+                <div class="table-header">
+                    🗃️ Tabla Original: RegistroAcademico (¡Muy desnormalizada!)
+                </div>
+                <div id="originalAttributes">
+                    <div class="attribute primary-key" data-type="pk" data-table="estudiante">
+                        EstudianteID
+                        <div class="attribute-info">PK - Código único del estudiante</div>
+                    </div>
+                    <div class="attribute" data-type="normal" data-table="estudiante">
+                        NombreEstudiante
+                        <div class="attribute-info">Nombre completo del estudiante</div>
+                    </div>
+                    <div class="attribute" data-type="normal" data-table="estudiante">
+                        EmailEstudiante
+                        <div class="attribute-info">Correo electrónico del estudiante</div>
+                    </div>
+                    <div class="attribute" data-type="normal" data-table="estudiante">
+                        CarreraEstudiante
+                        <div class="attribute-info">Carrera que estudia</div>
+                    </div>
+                    <div class="attribute primary-key" data-type="pk" data-table="curso">
+                        CursoID
+                        <div class="attribute-info">PK - Código único del curso</div>
+                    </div>
+                    <div class="attribute" data-type="normal" data-table="curso">
+                        NombreCurso
+                        <div class="attribute-info">Nombre del curso</div>
+                    </div>
+                    <div class="attribute" data-type="normal" data-table="curso">
+                        Creditos
+                        <div class="attribute-info">Número de créditos del curso</div>
+                    </div>
+                    <div class="attribute primary-key" data-type="pk" data-table="profesor">
+                        ProfesorID
+                        <div class="attribute-info">PK - Código único del profesor</div>
+                    </div>
+                    <div class="attribute" data-type="normal" data-table="profesor">
+                        NombreProfesor
+                        <div class="attribute-info">Nombre completo del profesor</div>
+                    </div>
+                    <div class="attribute" data-type="normal" data-table="profesor">
+                        DepartamentoProfesor
+                        <div class="attribute-info">Departamento al que pertenece</div>
+                    </div>
+                    <div class="attribute" data-type="normal" data-table="matricula">
+                        FechaMatricula
+                        <div class="attribute-info">Fecha de matriculación</div>
+                    </div>
+                    <div class="attribute" data-type="normal" data-table="matricula">
+                        NotaFinal
+                        <div class="attribute-info">Calificación final del curso</div>
+                    </div>
+                    <div class="attribute" data-type="normal" data-table="matricula">
+                        Semestre
+                        <div class="attribute-info">Semestre académico</div>
+                    </div>
+                </div>
+                <div class="validation-rules">
+                    <h4>🔍 Problemas Identificados:</h4>
+                    <div class="rule violated">❌ Redundancia: Datos de estudiante se repiten por cada curso</div>
+                    <div class="rule violated">❌ Redundancia: Datos de curso se repiten por cada estudiante</div>
+                    <div class="rule violated">❌ Redundancia: Datos de profesor se repiten por cada curso</div>
+                    <div class="rule violated">❌ Anomalías de actualización: Cambiar nombre de profesor requiere múltiples actualizaciones</div>
+                    <div class="rule violated">❌ Anomalías de eliminación: Eliminar última matrícula pierde datos del curso</div>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="btn btn-success" onclick="startNormalization()">🚀 Comenzar Normalización</button>
+            </div>
+        </div>
+        <!-- FASE 2: NORMALIZACIÓN -->
+        <div id="normalization" class="workspace">
+            <div class="workspace-grid">
+                <div class="source-area">
+                    <h3>📦 Atributos Disponibles</h3>
+                    <p style="margin-bottom: 15px;">Arrastra los atributos a las tablas correspondientes:</p>
+                    <div id="availableAttributes">
+                        <!-- Los atributos se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+                <div class="target-area">
+                    <h3>🎯 Tablas Normalizadas</h3>
+                    <div class="table-container" data-table-type="estudiante">
+                        <div class="table-header">
+                            <input type="text" placeholder="Nombre de la tabla..." value="Estudiantes">
+                        </div>
+                        <div class="attributes-area" id="estudiante-attributes">
+                            <div class="placeholder">Arrastra aquí los atributos de Estudiante</div>
+                        </div>
+                    </div>
+                    <div class="table-container" data-table-type="curso">
+                        <div class="table-header">
+                            <input type="text" placeholder="Nombre de la tabla..." value="Cursos">
+                        </div>
+                        <div class="attributes-area" id="curso-attributes">
+                            <div class="placeholder">Arrastra aquí los atributos de Curso</div>
+                        </div>
+                    </div>
+                    <div class="table-container" data-table-type="profesor">
+                        <div class="table-header">
+                            <input type="text" placeholder="Nombre de la tabla..." value="Profesores">
+                        </div>
+                        <div class="attributes-area" id="profesor-attributes">
+                            <div class="placeholder">Arrastra aquí los atributos de Profesor</div>
+                        </div>
+                    </div>
+                    <div class="table-container" data-table-type="matricula">
+                        <div class="table-header">
+                            <input type="text" placeholder="Nombre de la tabla..." value="Matriculas">
+                        </div>
+                        <div class="attributes-area" id="matricula-attributes">
+                            <div class="placeholder">Arrastra aquí los atributos de Matrícula</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="feedback" id="normalizationFeedback"></div>
+            <div class="controls">
+                <button class="btn" onclick="validateNormalization()">✅ Validar Normalización</button>
+                <button class="btn btn-success" onclick="generateSQL()" id="generateSQLBtn" disabled>📝 Generar SQL</button>
+                <button class="btn" onclick="resetNormalization()">🔄 Reiniciar</button>
+                <button class="btn btn-warning" onclick="testDragDrop()">🧪 Prueba Manual</button>
+            </div>
+            <div class="sql-preview" id="sqlPreview" style="display: none;"></div>
+        </div>
+        <!-- FASE 3: DESNORMALIZACIÓN -->
+        <div id="denormalization" class="workspace">
+            <div class="hint-box">
+                <h4>🎯 Objetivo de Desnormalización:</h4>
+                <p>El departamento académico necesita generar reportes frecuentes que muestren: estudiante, curso, profesor y nota final. Esta consulta se ejecuta 500 veces al día y actualmente tarda 3 segundos.</p>
+            </div>
+            <div class="workspace-grid">
+                <div class="source-area">
+                    <h3>📊 Tablas Normalizadas</h3>
+                    <div id="normalizedTables">
+                        <!-- Se mostrarán las tablas normalizadas -->
+                    </div>
+                </div>
+                <div class="target-area">
+                    <h3>⚡ Tabla Desnormalizada para Reportes</h3>
+                    <div class="table-container" data-table-type="reporte">
+                        <div class="table-header">
+                            <input type="text" placeholder="Nombre de la tabla..." value="ReporteAcademico">
+                        </div>
+                        <div class="attributes-area" id="reporte-attributes">
+                            <div class="placeholder">Arrastra aquí los atributos para el reporte</div>
+                        </div>
+                    </div>
+                    <div class="hint-box">
+                        <h4>💡 Pista:</h4>
+                        <p>Para el reporte necesitas: identificadores, nombres descriptivos y la nota final. ¡Incluye redundancia intencional!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="feedback" id="denormalizationFeedback"></div>
+            <div class="controls">
+                <button class="btn" onclick="validateDenormalization()">✅ Validar Desnormalización</button>
+                <button class="btn btn-success" onclick="generateDenormalizedSQL()" id="generateDenormSQLBtn" disabled>📝 Generar SQL</button>
+                <button class="btn" onclick="showPerformanceComparison()" id="performanceBtn" disabled>📈 Ver Mejora de Rendimiento</button>
+            </div>
+            <div class="sql-preview" id="denormSqlPreview" style="display: none;"></div>
+        </div>
     </div>
-
     <script>
         let currentPhase = 'analysis';
         let draggedElement = null;
         let normalizedTablesValid = false;
         let denormalizedTableValid = false;
-
-        // Definir la estructura correcta para validación
         const correctNormalization = {
             estudiante: ['EstudianteID', 'NombreEstudiante', 'EmailEstudiante', 'CarreraEstudiante'],
             curso: ['CursoID', 'NombreCurso', 'Creditos', 'ProfesorID'],
             profesor: ['ProfesorID', 'NombreProfesor', 'DepartamentoProfesor'],
             matricula: ['EstudianteID', 'CursoID', 'FechaMatricula', 'NotaFinal', 'Semestre']
         };
-
         const correctDenormalization = [
             'EstudianteID', 'NombreEstudiante', 'CursoID', 'NombreCurso', 
             'ProfesorID', 'NombreProfesor', 'NotaFinal', 'Semestre'
         ];
-
         function showPhase(phase) {
-            // Ocultar todas las fases
             document.querySelectorAll('.workspace').forEach(workspace => {
                 workspace.classList.remove('active');
             });
-            // Mostrar fase seleccionada
             document.getElementById(phase).classList.add('active');
-            // Actualizar tabs
             document.querySelectorAll('.phase-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -49,7 +562,6 @@
             currentPhase = phase;
             updateProgressIndicator();
         }
-
         function updateProgressIndicator() {
             const steps = ['step1', 'step2', 'step3'];
             const phases = ['analysis', 'normalization', 'denormalization'];
@@ -63,18 +575,14 @@
                 }
             });
         }
-
         function startNormalization() {
             showPhase('normalization');
             initializeNormalizationWorkspace();
         }
-
         function initializeNormalizationWorkspace() {
             const originalAttributes = document.getElementById('originalAttributes');
             const availableAttributes = document.getElementById('availableAttributes');
-            // Limpiar área disponible
             availableAttributes.innerHTML = '';
-            // Clonar atributos al área de trabajo
             const attributes = originalAttributes.querySelectorAll('.attribute');
             attributes.forEach(attr => {
                 const cloned = attr.cloneNode(true);
@@ -82,10 +590,8 @@
             });
             setupDragAndDrop();
         }
-
-        // ==== DRAG AND DROP CORREGIDO ====
         function setupDragAndDrop() {
-            // Todas las zonas de destino
+            // Normalización
             document.querySelectorAll('.table-container[data-table-type]').forEach(zone => {
                 zone.removeEventListener('dragover', dragOverHandler);
                 zone.removeEventListener('dragenter', dragEnterHandler);
@@ -96,16 +602,61 @@
                 zone.addEventListener('dragleave', dragLeaveHandler);
                 zone.addEventListener('drop', dropHandler);
             });
-
-            // Todos los atributos (en cualquier lado)
+            // Desnormalización
+            if (document.querySelector('[data-table-type="reporte"]')) {
+                const reportZone = document.querySelector('[data-table-type="reporte"]');
+                reportZone.removeEventListener('dragover', dragOverHandlerDenorm);
+                reportZone.removeEventListener('dragenter', dragEnterHandlerDenorm);
+                reportZone.removeEventListener('dragleave', dragLeaveHandlerDenorm);
+                reportZone.removeEventListener('drop', dropHandlerDenorm);
+                reportZone.addEventListener('dragover', dragOverHandlerDenorm);
+                reportZone.addEventListener('dragenter', dragEnterHandlerDenorm);
+                reportZone.addEventListener('dragleave', dragLeaveHandlerDenorm);
+                reportZone.addEventListener('drop', dropHandlerDenorm);
+            }
             document.querySelectorAll('.attribute').forEach(attr => {
                 attr.setAttribute('draggable', true);
                 attr.removeEventListener('dragstart', dragStartHandler);
                 attr.removeEventListener('dragend', dragEndHandler);
                 attr.addEventListener('dragstart', dragStartHandler);
                 attr.addEventListener('dragend', dragEndHandler);
+                attr.ondblclick = function () {
+                    if (currentPhase === 'normalization') {
+                        const availableArea = document.getElementById('availableAttributes');
+                        availableArea.appendChild(this);
+                        showFeedback('Atributo devuelto al área disponible', 'warning', 'normalizationFeedback');
+                        const parentArea = this.parentElement;
+                        if ([...parentArea.children].filter(child => !child.classList.contains('placeholder')).length === 0) {
+                            parentArea.classList.remove('has-attributes');
+                            const tableType = parentArea.closest('.table-container').dataset.tableType;
+                            const placeholder = document.createElement('div');
+                            placeholder.className = 'placeholder';
+                            placeholder.textContent = {
+                                'estudiante': 'Arrastra aquí los atributos de Estudiante',
+                                'curso': 'Arrastra aquí los atributos de Curso',
+                                'profesor': 'Arrastra aquí los atributos de Profesor',
+                                'matricula': 'Arrastra aquí los atributos de Matrícula'
+                            }[tableType] || 'Arrastra aquí los atributos';
+                            parentArea.appendChild(placeholder);
+                        }
+                    } else if (currentPhase === 'denormalization') {
+                        const sourceArea = document.getElementById('denormSourceAttributes');
+                        sourceArea.appendChild(this);
+                        showFeedback('Atributo devuelto', 'warning', 'denormalizationFeedback');
+                        const parentArea = this.parentElement;
+                        if ([...parentArea.children].filter(child => !child.classList.contains('placeholder')).length === 0) {
+                            parentArea.classList.remove('has-attributes');
+                            const placeholder = document.createElement('div');
+                            placeholder.className = 'placeholder';
+                            placeholder.textContent = 'Arrastra aquí los atributos para el reporte';
+                            parentArea.appendChild(placeholder);
+                        }
+                    }
+                    setupDragAndDrop();
+                };
             });
         }
+        // Drag para normalización
         function dragStartHandler(e) {
             draggedElement = e.target;
             e.target.classList.add('dragging');
@@ -132,10 +683,7 @@
         }
         function dropHandler(e) {
             e.preventDefault();
-            handleDrop(e, this);
-        }
-
-        function handleDrop(e, dropZone) {
+            const dropZone = this;
             dropZone.classList.remove('drop-zone');
             if (!draggedElement) return;
             const tableType = dropZone.dataset.tableType;
@@ -147,10 +695,9 @@
                     placeholder.remove();
                     attributesArea.classList.add('has-attributes');
                 }
-                attributesArea.appendChild(draggedElement); // <-- mueve el nodo (no clona)
+                attributesArea.appendChild(draggedElement);
                 showFeedback('✅ ¡Correcto! ' + attributeName + ' pertenece a la tabla ' + tableType, 'success', 'normalizationFeedback');
-                setupAttributeForRemoval(draggedElement, attributesArea);
-                setupDragAndDrop(); // reactiva para el nuevo DOM
+                setupDragAndDrop();
             } else {
                 dropZone.classList.add('error');
                 const expectedTable = draggedElement.dataset.table;
@@ -160,44 +707,326 @@
                 }, 1000);
             }
         }
-        function setupAttributeForRemoval(attribute, parentArea) {
-            attribute.ondblclick = function () {
-                const availableArea = document.getElementById('availableAttributes');
-                availableArea.appendChild(this);
-                // Verificar si el área padre se queda vacía
-                if ([...parentArea.children].filter(child => !child.classList.contains('placeholder')).length === 0) {
-                    parentArea.classList.remove('has-attributes');
-                    // Restaurar placeholder
-                    const tableType = parentArea.closest('.table-container').dataset.tableType;
-                    const placeholder = document.createElement('div');
-                    placeholder.className = 'placeholder';
-                    placeholder.textContent = {
-                        'estudiante': 'Arrastra aquí los atributos de Estudiante',
-                        'curso': 'Arrastra aquí los atributos de Curso',
-                        'profesor': 'Arrastra aquí los atributos de Profesor',
-                        'matricula': 'Arrastra aquí los atributos de Matrícula'
-                    }[tableType] || 'Arrastra aquí los atributos';
-                    parentArea.appendChild(placeholder);
-                }
-                showFeedback('Atributo devuelto al área disponible', 'warning', 'normalizationFeedback');
-                setupDragAndDrop();
-            };
+        // Drag para desnormalización
+        function dragOverHandlerDenorm(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
         }
-
-        // ==== RESTO DE TU JS ORIGINAL (sin cambios, puedes pegarlo aquí) ====
-        // ... 
-        // TODO: pega aquí el resto de tus funciones JS del código original (validaciones, generación SQL, etc)
-        // ... 
-        // Ejemplo:
+        function dragEnterHandlerDenorm(e) {
+            e.preventDefault();
+            if (draggedElement) {
+                this.classList.add('drop-zone');
+            }
+        }
+        function dragLeaveHandlerDenorm(e) {
+            if (!this.contains(e.relatedTarget)) {
+                this.classList.remove('drop-zone');
+            }
+        }
+        function dropHandlerDenorm(e) {
+            e.preventDefault();
+            const dropZone = this;
+            dropZone.classList.remove('drop-zone');
+            if (!draggedElement) return;
+            const attributeName = draggedElement.textContent.trim();
+            const isForDenorm = draggedElement.dataset.forDenorm === 'true';
+            const attributesArea = dropZone.querySelector('.attributes-area');
+            if (isForDenorm) {
+                const placeholder = attributesArea.querySelector('.placeholder');
+                if (placeholder) {
+                    placeholder.remove();
+                    attributesArea.classList.add('has-attributes');
+                }
+                attributesArea.appendChild(draggedElement);
+                showFeedback('✅ ¡Correcto! ' + attributeName + ' es necesario para el reporte', 'success', 'denormalizationFeedback');
+                setupDragAndDrop();
+            } else {
+                dropZone.classList.add('error');
+                showFeedback('❌ Error: ' + attributeName + ' no es necesario para este reporte. Los reportes deben incluir solo información esencial.', 'error', 'denormalizationFeedback');
+                setTimeout(() => {
+                    dropZone.classList.remove('error');
+                }, 1000);
+            }
+        }
         function validateAttributePlacement(attributeName, tableType) {
             return correctNormalization[tableType] && correctNormalization[tableType].includes(attributeName);
         }
+        // ... Resto de funciones originales igual (validateNormalization, generateSQL, etc.)
+        // Puedes pegar tu bloque original de funciones JS restantes aquí, sin modificar.
+        // Por brevedad no lo duplico todo aquí, pero no hay cambios en esas funciones.
+        // ... Incluye tu generateSQL, validateNormalization, etc.
+        function validateNormalization() {
+            const tables = ['estudiante', 'curso', 'profesor', 'matricula'];
+            let allCorrect = true;
+            let feedback = '🔍 Validación de Normalización:\n\n';
+            tables.forEach(tableType => {
+                const attributesArea = document.getElementById(tableType + '-attributes');
+                const attributes = Array.from(attributesArea.children)
+                    .filter(child => !child.classList.contains('placeholder'))
+                    .map(attr => attr.textContent.split('\n')[0].trim());
+                const expected = correctNormalization[tableType];
+                const missing = expected.filter(attr => !attributes.includes(attr));
+                const extra = attributes.filter(attr => !expected.includes(attr));
+                if (missing.length === 0 && extra.length === 0) {
+                    feedback += `✅ Tabla ${tableType}: Correcta\n`;
+                } else {
+                    allCorrect = false;
+                    feedback += `❌ Tabla ${tableType}:\n`;
+                    if (missing.length > 0) {
+                        feedback += `   Faltan: ${missing.join(', ')}\n`;
+                    }
+                    if (extra.length > 0) {
+                        feedback += `   Sobran: ${extra.join(', ')}\n`;
+                    }
+                }
+            });
+            if (allCorrect) {
+                feedback += '\n🎉 ¡Excelente! La normalización está correcta. Puedes generar el SQL.';
+                normalizedTablesValid = true;
+                document.getElementById('generateSQLBtn').disabled = false;
+                showFeedback(feedback, 'success', 'normalizationFeedback');
+            } else {
+                feedback += '\n💡 Revisa los errores y ajusta los atributos.';
+                showFeedback(feedback, 'error', 'normalizationFeedback');
+            }
+        }
+        function generateSQL() {
+            if (!normalizedTablesValid) return;
+            const sqlCode = `-- Estructura Normalizada (3FN)
+CREATE TABLE Estudiantes (
+    EstudianteID INT PRIMARY KEY,
+    NombreEstudiante VARCHAR(100),
+    EmailEstudiante VARCHAR(100),
+    CarreraEstudiante VARCHAR(80)
+);
 
-        // ... resto de funciones (validateNormalization, generateSQL, etc.) igual a tu código original ...
-        // ... (todo tu bloque de funciones después de setupAttributeForRemoval) ...
-        // ... puedes pegar aquí desde "function validateNormalization() {" en adelante ...
+CREATE TABLE Profesores (
+    ProfesorID INT PRIMARY KEY,
+    NombreProfesor VARCHAR(100),
+    DepartamentoProfesor VARCHAR(50)
+);
 
-        // Inicializar cuando el DOM esté listo
+CREATE TABLE Cursos (
+    CursoID INT PRIMARY KEY,
+    NombreCurso VARCHAR(150),
+    Creditos INT,
+    ProfesorID INT,
+    FOREIGN KEY (ProfesorID) REFERENCES Profesores(ProfesorID)
+);
+
+CREATE TABLE Matriculas (
+    EstudianteID INT,
+    CursoID INT,
+    FechaMatricula DATE,
+    NotaFinal DECIMAL(4,2),
+    Semestre VARCHAR(10),
+    PRIMARY KEY (EstudianteID, CursoID),
+    FOREIGN KEY (EstudianteID) REFERENCES Estudiantes(EstudianteID),
+    FOREIGN KEY (CursoID) REFERENCES Cursos(CursoID)
+);
+
+-- Consulta que requiere múltiples JOINs (LENTA)
+SELECT 
+    e.NombreEstudiante,
+    c.NombreCurso,
+    p.NombreProfesor,
+    m.NotaFinal,
+    m.Semestre
+FROM Matriculas m
+INNER JOIN Estudiantes e ON m.EstudianteID = e.EstudianteID
+INNER JOIN Cursos c ON m.CursoID = c.CursoID
+INNER JOIN Profesores p ON c.ProfesorID = p.ProfesorID
+WHERE m.Semestre = '2024-I';`;
+            document.getElementById('sqlPreview').textContent = sqlCode;
+            document.getElementById('sqlPreview').style.display = 'block';
+            showFeedback('✅ SQL generado correctamente. Ahora puedes proceder a la desnormalización.', 'success', 'normalizationFeedback');
+            setupDenormalizationPhase();
+        }
+        function resetNormalization() {
+            const tablesTypes = ['estudiante', 'curso', 'profesor', 'matricula'];
+            const placeholderTexts = {
+                'estudiante': 'Arrastra aquí los atributos de Estudiante',
+                'curso': 'Arrastra aquí los atributos de Curso',
+                'profesor': 'Arrastra aquí los atributos de Profesor',
+                'matricula': 'Arrastra aquí los atributos de Matrícula'
+            };
+            tablesTypes.forEach(tableType => {
+                const area = document.getElementById(tableType + '-attributes');
+                if (area) {
+                    area.innerHTML = '';
+                    area.classList.remove('has-attributes');
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'placeholder';
+                    placeholder.textContent = placeholderTexts[tableType];
+                    area.appendChild(placeholder);
+                }
+            });
+            initializeNormalizationWorkspace();
+            normalizedTablesValid = false;
+            document.getElementById('generateSQLBtn').disabled = true;
+            document.getElementById('sqlPreview').style.display = 'none';
+            showFeedback('🔄 Workspace reiniciado. Puedes intentar de nuevo.', 'warning', 'normalizationFeedback');
+        }
+        function testDragDrop() {
+            const firstAttribute = document.querySelector('#availableAttributes .attribute');
+            const studentTable = document.querySelector('[data-table-type="estudiante"] .attributes-area');
+            if (firstAttribute && studentTable) {
+                const placeholder = studentTable.querySelector('.placeholder');
+                if (placeholder) {
+                    placeholder.remove();
+                    studentTable.classList.add('has-attributes');
+                }
+                studentTable.appendChild(firstAttribute);
+                setupDragAndDrop();
+                showFeedback('🧪 Prueba manual exitosa - el atributo se movió correctamente', 'success', 'normalizationFeedback');
+            } else {
+                showFeedback('❌ Error en la prueba - elementos no encontrados', 'error', 'normalizationFeedback');
+            }
+        }
+        function setupDenormalizationPhase() {
+            const normalizedTablesDiv = document.getElementById('normalizedTables');
+            normalizedTablesDiv.innerHTML = `
+                <div class="table-container">
+                    <div class="table-header">📊 Atributos Disponibles para Desnormalizar</div>
+                    <div id="denormSourceAttributes">
+                        <div class="attribute primary-key" data-for-denorm="true">EstudianteID</div>
+                        <div class="attribute" data-for-denorm="true">NombreEstudiante</div>
+                        <div class="attribute primary-key" data-for-denorm="true">CursoID</div>
+                        <div class="attribute" data-for-denorm="true">NombreCurso</div>
+                        <div class="attribute primary-key" data-for-denorm="true">ProfesorID</div>
+                        <div class="attribute" data-for-denorm="true">NombreProfesor</div>
+                        <div class="attribute" data-for-denorm="true">NotaFinal</div>
+                        <div class="attribute" data-for-denorm="true">Semestre</div>
+                        <div class="attribute" data-for-denorm="false">EmailEstudiante</div>
+                        <div class="attribute" data-for-denorm="false">CarreraEstudiante</div>
+                        <div class="attribute" data-for-denorm="false">Creditos</div>
+                        <div class="attribute" data-for-denorm="false">DepartamentoProfesor</div>
+                        <div class="attribute" data-for-denorm="false">FechaMatricula</div>
+                    </div>
+                </div>
+            `;
+            setupDragAndDrop();
+        }
+        function validateDenormalization() {
+            const reportArea = document.getElementById('reporte-attributes');
+            const attributes = Array.from(reportArea.children)
+                .filter(child => !child.classList.contains('placeholder'))
+                .map(attr => attr.textContent.trim());
+            const missing = correctDenormalization.filter(attr => !attributes.includes(attr));
+            const extra = attributes.filter(attr => !correctDenormalization.includes(attr));
+            let feedback = '🔍 Validación de Desnormalización:\n\n';
+            if (missing.length === 0 && extra.length === 0) {
+                feedback += '✅ ¡Perfecto! La tabla desnormalizada está correcta.\n\n';
+                feedback += '📊 Incluye exactamente los campos necesarios para el reporte:\n';
+                feedback += '• Identificadores para mantener relaciones\n';
+                feedback += '• Nombres descriptivos para mostrar\n';
+                feedback += '• Nota final y semestre para filtrar\n\n';
+                feedback += '🚀 Ahora puedes generar el SQL optimizado.';
+                denormalizedTableValid = true;
+                document.getElementById('generateDenormSQLBtn').disabled = false;
+                document.getElementById('performanceBtn').disabled = false;
+                showFeedback(feedback, 'success', 'denormalizationFeedback');
+            } else {
+                if (missing.length > 0) {
+                    feedback += `❌ Faltan campos importantes: ${missing.join(', ')}\n`;
+                }
+                if (extra.length > 0) {
+                    feedback += `⚠️ Campos innecesarios: ${extra.join(', ')}\n`;
+                }
+                feedback += '\n💡 Recuerda: incluye solo lo necesario para el reporte de notas.';
+                showFeedback(feedback, 'error', 'denormalizationFeedback');
+            }
+        }
+        function generateDenormalizedSQL() {
+            if (!denormalizedTableValid) return;
+            const sqlCode = `-- Tabla Desnormalizada para Reportes (Optimizada)
+CREATE TABLE ReporteAcademico (
+    EstudianteID INT,
+    NombreEstudiante VARCHAR(100), -- Redundancia intencional
+    CursoID INT,
+    NombreCurso VARCHAR(150),      -- Redundancia intencional
+    ProfesorID INT,
+    NombreProfesor VARCHAR(100),   -- Redundancia intencional
+    NotaFinal DECIMAL(4,2),
+    Semestre VARCHAR(10),
+    FechaActualizacion DATETIME DEFAULT GETDATE()
+);
+
+-- Consulta Optimizada (SIN JOINs - RÁPIDA)
+SELECT 
+    NombreEstudiante,
+    NombreCurso,
+    NombreProfesor,
+    NotaFinal,
+    Semestre
+FROM ReporteAcademico
+WHERE Semestre = '2024-I';
+
+-- Procedimiento para mantener sincronización
+CREATE PROCEDURE sp_ActualizarReporteAcademico
+AS
+BEGIN
+    TRUNCATE TABLE ReporteAcademico;
+    INSERT INTO ReporteAcademico (
+        EstudianteID, NombreEstudiante, CursoID, NombreCurso,
+        ProfesorID, NombreProfesor, NotaFinal, Semestre
+    )
+    SELECT 
+        e.EstudianteID, e.NombreEstudiante,
+        c.CursoID, c.NombreCurso,
+        p.ProfesorID, p.NombreProfesor,
+        m.NotaFinal, m.Semestre
+    FROM Matriculas m
+    INNER JOIN Estudiantes e ON m.EstudianteID = e.EstudianteID
+    INNER JOIN Cursos c ON m.CursoID = c.CursoID
+    INNER JOIN Profesores p ON c.ProfesorID = p.ProfesorID;
+END;`;
+            document.getElementById('denormSqlPreview').textContent = sqlCode;
+            document.getElementById('denormSqlPreview').style.display = 'block';
+            showFeedback('✅ SQL de desnormalización generado correctamente. ¡Puedes ver la mejora de rendimiento!', 'success', 'denormalizationFeedback');
+        }
+        function showPerformanceComparison() {
+            const beforeTime = (Math.random() * 2 + 2.5).toFixed(2);
+            const afterTime = (Math.random() * 0.3 + 0.1).toFixed(2);
+            const improvement = (beforeTime / afterTime).toFixed(1);
+            const comparisonHTML = `
+                <div style="background: linear-gradient(45deg, #4caf50, #8bc34a); color: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <h3>📈 Análisis de Rendimiento</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px;">
+                            <h4>🐌 Consulta Normalizada</h4>
+                            <p><strong>Tiempo:</strong> ${beforeTime}s</p>
+                            <p><strong>JOINs:</strong> 3 tablas</p>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px;">
+                            <h4>🚀 Consulta Desnormalizada</h4>
+                            <p><strong>Tiempo:</strong> ${afterTime}s</p>
+                            <p><strong>JOINs:</strong> 0</p>
+                        </div>
+                    </div>
+                    <div style="text-align: center; font-size: 1.2em;">
+                        <strong>🎯 Mejora: ${improvement}x más rápida</strong>
+                    </div>
+                </div>
+            `;
+            const performanceDiv = document.createElement('div');
+            performanceDiv.innerHTML = comparisonHTML;
+            document.getElementById('denormalization').appendChild(performanceDiv);
+            document.getElementById('step3').classList.remove('current');
+            document.getElementById('step3').classList.add('completed');
+            showFeedback('🎉 ¡Laboratorio completado exitosamente!', 'success', 'denormalizationFeedback');
+        }
+        function showFeedback(message, type, containerId) {
+            const feedback = document.getElementById(containerId);
+            feedback.className = `feedback ${type}`;
+            feedback.textContent = message;
+            feedback.style.display = 'block';
+            if (type === 'success') {
+                setTimeout(() => {
+                    feedback.style.display = 'none';
+                }, 5000);
+            }
+        }
         document.addEventListener('DOMContentLoaded', function() {
             updateProgressIndicator();
         });
