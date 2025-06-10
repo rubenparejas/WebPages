@@ -248,528 +248,407 @@
         </div>
     </div>
     <script>
-        // ---- INICIALIZACIÓN DE FASES Y DELEGACIÓN DE TABS ----
-        let currentPhase = 'analysis';
-        let draggedElement = null;
-        let normalizedTablesValid = false;
-        let denormalizedTableValid = false;
-
-        const correctNormalization = {
-            estudiante: ['EstudianteID', 'NombreEstudiante', 'EmailEstudiante', 'CarreraEstudiante'],
-            curso: ['CursoID', 'NombreCurso', 'Creditos', 'ProfesorID'],
-            profesor: ['ProfesorID', 'NombreProfesor', 'DepartamentoProfesor'],
-            matricula: ['EstudianteID', 'CursoID', 'FechaMatricula', 'NotaFinal', 'Semestre']
-        };
-        const correctDenormalization = [
-            'EstudianteID', 'NombreEstudiante', 'CursoID', 'NombreCurso', 
-            'ProfesorID', 'NombreProfesor', 'NotaFinal', 'Semestre'
-        ];
-
-        function showPhase(phase, tabElement) {
-            document.querySelectorAll('.workspace').forEach(workspace => workspace.classList.remove('active'));
-            document.getElementById(phase).classList.add('active');
-            document.querySelectorAll('.phase-tab').forEach(tab => tab.classList.remove('active'));
-            if (tabElement) tabElement.classList.add('active');
-            currentPhase = phase;
-            updateProgressIndicator();
-            if (phase === 'normalization' || phase === 'denormalization') setupDragAndDrop();
-        }
-        document.addEventListener('DOMContentLoaded', function () {
-            updateProgressIndicator();
-            document.querySelector('.phase-tabs').addEventListener('click', function (e) {
-                if (e.target.classList.contains('phase-tab')) {
-                    showPhase(e.target.dataset.phase, e.target);
-                }
-            });
-            setupDragAndDrop();
+    // --- JS INICIO ---
+    let currentPhase = 'analysis';
+    let draggedElement = null;
+    let normalizedTablesValid = false;
+    let denormalizedTableValid = false;
+    const correctNormalization = {
+        estudiante: ['EstudianteID', 'NombreEstudiante', 'EmailEstudiante', 'CarreraEstudiante'],
+        curso: ['CursoID', 'NombreCurso', 'Creditos', 'ProfesorID'],
+        profesor: ['ProfesorID', 'NombreProfesor', 'DepartamentoProfesor'],
+        matricula: ['EstudianteID', 'CursoID', 'FechaMatricula', 'NotaFinal', 'Semestre']
+    };
+    const correctDenormalization = [
+        'EstudianteID', 'NombreEstudiante', 'CursoID', 'NombreCurso',
+        'ProfesorID', 'NombreProfesor', 'NotaFinal', 'Semestre'
+    ];
+    function showPhase(phase, tabElement) {
+        document.querySelectorAll('.workspace').forEach(workspace => workspace.classList.remove('active'));
+        document.getElementById(phase).classList.add('active');
+        document.querySelectorAll('.phase-tab').forEach(tab => tab.classList.remove('active'));
+        if (tabElement) tabElement.classList.add('active');
+        currentPhase = phase;
+        updateProgressIndicator();
+        if (phase === 'normalization' || phase === 'denormalization') setupDragAndDrop();
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        updateProgressIndicator();
+        document.querySelector('.phase-tabs').addEventListener('click', function (e) {
+            if (e.target.classList.contains('phase-tab')) {
+                showPhase(e.target.dataset.phase, e.target);
+            }
         });
-
-        // ---- EL RESTO DE TU JS ORIGINAL VA AQUÍ ----
-        // Puedes pegar el JS tal cual del bloque anterior (el resto ya funcionaba, solo cambiamos los tabs).
-        // Por límite de espacio no lo repito aquí, pero puedes copiar tu código JS original o el que te pasé antes.
-        // ...
-        // Si necesitas el JS completo ya pegado y formateado aquí, dímelo y te lo pego en otra respuesta.
-
-        // ---- VARIABLES Y CONFIGURACIÓN ----
-        let currentPhase = 'analysis';
-        let draggedElement = null;
-        let normalizedTablesValid = false;
-        let denormalizedTableValid = false;
-        
-        const correctNormalization = {
-            estudiante: ['EstudianteID', 'NombreEstudiante', 'EmailEstudiante', 'CarreraEstudiante'],
-            curso: ['CursoID', 'NombreCurso', 'Creditos', 'ProfesorID'],
-            profesor: ['ProfesorID', 'NombreProfesor', 'DepartamentoProfesor'],
-            matricula: ['EstudianteID', 'CursoID', 'FechaMatricula', 'NotaFinal', 'Semestre']
-        };
-        const correctDenormalization = [
-            'EstudianteID', 'NombreEstudiante', 'CursoID', 'NombreCurso', 
-            'ProfesorID', 'NombreProfesor', 'NotaFinal', 'Semestre'
-        ];
-        
-        // ---- FASES Y TABS ----
-        function showPhase(phase, tabElement) {
-            document.querySelectorAll('.workspace').forEach(workspace => workspace.classList.remove('active'));
-            document.getElementById(phase).classList.add('active');
-            document.querySelectorAll('.phase-tab').forEach(tab => tab.classList.remove('active'));
-            if (tabElement) tabElement.classList.add('active');
-            currentPhase = phase;
-            updateProgressIndicator();
-            if (phase === 'normalization' || phase === 'denormalization') setupDragAndDrop();
-        }
-        document.addEventListener('DOMContentLoaded', function () {
-            updateProgressIndicator();
-            document.querySelector('.phase-tabs').addEventListener('click', function (e) {
-                if (e.target.classList.contains('phase-tab')) {
-                    showPhase(e.target.dataset.phase, e.target);
-                }
-            });
-            setupDragAndDrop();
+        setupDragAndDrop();
+    });
+    function updateProgressIndicator() {
+        const steps = ['step1', 'step2', 'step3'];
+        const phases = ['analysis', 'normalization', 'denormalization'];
+        steps.forEach((step, index) => {
+            const stepElement = document.getElementById(step);
+            stepElement.classList.remove('current', 'completed');
+            if (phases[index] === currentPhase) {
+                stepElement.classList.add('current');
+            } else if (phases.indexOf(currentPhase) > index) {
+                stepElement.classList.add('completed');
+            }
         });
-        
-        // ---- PROGRESO VISUAL ----
-        function updateProgressIndicator() {
-            const steps = ['step1', 'step2', 'step3'];
-            const phases = ['analysis', 'normalization', 'denormalization'];
-            steps.forEach((step, index) => {
-                const stepElement = document.getElementById(step);
-                stepElement.classList.remove('current', 'completed');
-                if (phases[index] === currentPhase) {
-                    stepElement.classList.add('current');
-                } else if (phases.indexOf(currentPhase) > index) {
-                    stepElement.classList.add('completed');
-                }
-            });
-        }
-        
-        // ---- INICIO DE NORMALIZACIÓN ----
-        function startNormalization() {
-            showPhase('normalization', document.querySelector('.phase-tab[data-phase="normalization"]'));
-            initializeNormalizationWorkspace();
-        }
-        
-        function initializeNormalizationWorkspace() {
-            const originalAttributes = document.getElementById('originalAttributes');
-            const availableAttributes = document.getElementById('availableAttributes');
-            availableAttributes.innerHTML = '';
-            const attributes = originalAttributes.querySelectorAll('.attribute');
-            attributes.forEach(attr => {
-                const cloned = attr.cloneNode(true);
-                availableAttributes.appendChild(cloned);
-            });
-            setupDragAndDrop();
-        }
-        
-        // ---- DRAG & DROP GENERAL ----
-        function setupDragAndDrop() {
-            // Para atributos disponibles
-            document.querySelectorAll('.attribute').forEach(attr => {
-                attr.setAttribute('draggable', true);
-                attr.ondragstart = dragStartHandler;
-                attr.ondragend = dragEndHandler;
-                attr.ondblclick = function () {
-                    if (currentPhase === 'normalization') {
-                        const availableArea = document.getElementById('availableAttributes');
-                        availableArea.appendChild(this);
-                        showFeedback('Atributo devuelto al área disponible', 'warning', 'normalizationFeedback');
-                        const parentArea = this.parentElement;
-                        if ([...parentArea.children].filter(child => !child.classList.contains('placeholder')).length === 0) {
-                            parentArea.classList.remove('has-attributes');
-                            const tableType = parentArea.closest('.table-container').dataset.tableType;
-                            const placeholder = document.createElement('div');
-                            placeholder.className = 'placeholder';
-                            placeholder.textContent = {
-                                'estudiante': 'Arrastra aquí los atributos de Estudiante',
-                                'curso': 'Arrastra aquí los atributos de Curso',
-                                'profesor': 'Arrastra aquí los atributos de Profesor',
-                                'matricula': 'Arrastra aquí los atributos de Matrícula'
-                            }[tableType] || 'Arrastra aquí los atributos';
-                            parentArea.appendChild(placeholder);
-                        }
-                    } else if (currentPhase === 'denormalization') {
-                        const sourceArea = document.getElementById('denormSourceAttributes');
-                        sourceArea.appendChild(this);
-                        showFeedback('Atributo devuelto', 'warning', 'denormalizationFeedback');
-                        const parentArea = this.parentElement;
-                        if ([...parentArea.children].filter(child => !child.classList.contains('placeholder')).length === 0) {
-                            parentArea.classList.remove('has-attributes');
-                            const placeholder = document.createElement('div');
-                            placeholder.className = 'placeholder';
-                            placeholder.textContent = 'Arrastra aquí los atributos para el reporte';
-                            parentArea.appendChild(placeholder);
-                        }
-                    }
-                    setupDragAndDrop();
-                };
-            });
-            // Para zonas de drop en normalización
-            document.querySelectorAll('.table-container[data-table-type]').forEach(zone => {
-                zone.ondragover = dragOverHandler;
-                zone.ondragenter = dragEnterHandler;
-                zone.ondragleave = dragLeaveHandler;
-                zone.ondrop = dropHandler;
-            });
-            // Para zona de drop en desnormalización
-            if (document.querySelector('[data-table-type="reporte"]')) {
-                const reportZone = document.querySelector('[data-table-type="reporte"]');
-                reportZone.ondragover = dragOverHandlerDenorm;
-                reportZone.ondragenter = dragEnterHandlerDenorm;
-                reportZone.ondragleave = dragLeaveHandlerDenorm;
-                reportZone.ondrop = dropHandlerDenorm;
-            }
-        }
-        
-        // Drag & drop normalización
-        function dragStartHandler(e) {
-            draggedElement = e.target;
-            e.target.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-        }
-        function dragEndHandler(e) {
-            e.target.classList.remove('dragging');
-            draggedElement = null;
-        }
-        function dragOverHandler(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        }
-        function dragEnterHandler(e) {
-            e.preventDefault();
-            if (draggedElement) this.classList.add('drop-zone');
-        }
-        function dragLeaveHandler(e) {
-            if (!this.contains(e.relatedTarget)) this.classList.remove('drop-zone');
-        }
-        function dropHandler(e) {
-            e.preventDefault();
-            const dropZone = this;
-            dropZone.classList.remove('drop-zone');
-            if (!draggedElement) return;
-            const tableType = dropZone.dataset.tableType;
-            const attributeName = draggedElement.textContent.split('\n')[0].trim();
-            if (validateAttributePlacement(attributeName, tableType)) {
-                const attributesArea = dropZone.querySelector('.attributes-area');
-                const placeholder = attributesArea.querySelector('.placeholder');
-                if (placeholder) {
-                    placeholder.remove();
-                    attributesArea.classList.add('has-attributes');
-                }
-                attributesArea.appendChild(draggedElement);
-                showFeedback('✅ ¡Correcto! ' + attributeName + ' pertenece a la tabla ' + tableType, 'success', 'normalizationFeedback');
-                setupDragAndDrop();
-            } else {
-                dropZone.classList.add('error');
-                const expectedTable = draggedElement.dataset.table;
-                showFeedback('❌ Error: ' + attributeName + ' no pertenece a la tabla ' + tableType + '. Pista: pertenece a ' + expectedTable, 'error', 'normalizationFeedback');
-                setTimeout(() => { dropZone.classList.remove('error'); }, 1000);
-            }
-        }
-        function validateAttributePlacement(attributeName, tableType) {
-            return correctNormalization[tableType] && correctNormalization[tableType].includes(attributeName);
-        }
-        
-        // Drag & drop desnormalización
-        function dragOverHandlerDenorm(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        }
-        function dragEnterHandlerDenorm(e) {
-            e.preventDefault();
-            if (draggedElement) this.classList.add('drop-zone');
-        }
-        function dragLeaveHandlerDenorm(e) {
-            if (!this.contains(e.relatedTarget)) this.classList.remove('drop-zone');
-        }
-        function dropHandlerDenorm(e) {
-            e.preventDefault();
-            const dropZone = this;
-            dropZone.classList.remove('drop-zone');
-            if (!draggedElement) return;
-            const attributeName = draggedElement.textContent.trim();
-            const isForDenorm = draggedElement.dataset.forDenorm === 'true';
-            const attributesArea = dropZone.querySelector('.attributes-area');
-            if (isForDenorm) {
-                const placeholder = attributesArea.querySelector('.placeholder');
-                if (placeholder) {
-                    placeholder.remove();
-                    attributesArea.classList.add('has-attributes');
-                }
-                attributesArea.appendChild(draggedElement);
-                showFeedback('✅ ¡Correcto! ' + attributeName + ' es necesario para el reporte', 'success', 'denormalizationFeedback');
-                setupDragAndDrop();
-            } else {
-                dropZone.classList.add('error');
-                showFeedback('❌ Error: ' + attributeName + ' no es necesario para este reporte. Los reportes deben incluir solo información esencial.', 'error', 'denormalizationFeedback');
-                setTimeout(() => { dropZone.classList.remove('error'); }, 1000);
-            }
-        }
-        
-        // ---- VALIDACIONES Y SQL ----
-        function validateNormalization() {
-            const tables = ['estudiante', 'curso', 'profesor', 'matricula'];
-            let allCorrect = true;
-            let feedback = '🔍 Validación de Normalización:\n\n';
-            tables.forEach(tableType => {
-                const attributesArea = document.getElementById(tableType + '-attributes');
-                const attributes = Array.from(attributesArea.children)
-                    .filter(child => !child.classList.contains('placeholder'))
-                    .map(attr => attr.textContent.split('\n')[0].trim());
-                const expected = correctNormalization[tableType];
-                const missing = expected.filter(attr => !attributes.includes(attr));
-                const extra = attributes.filter(attr => !expected.includes(attr));
-                if (missing.length === 0 && extra.length === 0) {
-                    feedback += `✅ Tabla ${tableType}: Correcta\n`;
-                } else {
-                    allCorrect = false;
-                    feedback += `❌ Tabla ${tableType}:\n`;
-                    if (missing.length > 0) feedback += `   Faltan: ${missing.join(', ')}\n`;
-                    if (extra.length > 0) feedback += `   Sobran: ${extra.join(', ')}\n`;
-                }
-            });
-            if (allCorrect) {
-                feedback += '\n🎉 ¡Excelente! La normalización está correcta. Puedes generar el SQL.';
-                normalizedTablesValid = true;
-                document.getElementById('generateSQLBtn').disabled = false;
-                showFeedback(feedback, 'success', 'normalizationFeedback');
-            } else {
-                feedback += '\n💡 Revisa los errores y ajusta los atributos.';
-                showFeedback(feedback, 'error', 'normalizationFeedback');
-            }
-        }
-        function generateSQL() {
-            if (!normalizedTablesValid) return;
-            const sqlCode = `-- Estructura Normalizada (3FN)
-        CREATE TABLE Estudiantes (
-            EstudianteID INT PRIMARY KEY,
-            NombreEstudiante VARCHAR(100),
-            EmailEstudiante VARCHAR(100),
-            CarreraEstudiante VARCHAR(80)
-        );
-        
-        CREATE TABLE Profesores (
-            ProfesorID INT PRIMARY KEY,
-            NombreProfesor VARCHAR(100),
-            DepartamentoProfesor VARCHAR(50)
-        );
-        
-        CREATE TABLE Cursos (
-            CursoID INT PRIMARY KEY,
-            NombreCurso VARCHAR(150),
-            Creditos INT,
-            ProfesorID INT,
-            FOREIGN KEY (ProfesorID) REFERENCES Profesores(ProfesorID)
-        );
-        
-        CREATE TABLE Matriculas (
-            EstudianteID INT,
-            CursoID INT,
-            FechaMatricula DATE,
-            NotaFinal DECIMAL(4,2),
-            Semestre VARCHAR(10),
-            PRIMARY KEY (EstudianteID, CursoID),
-            FOREIGN KEY (EstudianteID) REFERENCES Estudiantes(EstudianteID),
-            FOREIGN KEY (CursoID) REFERENCES Cursos(CursoID)
-        );
-        
-        -- Consulta que requiere múltiples JOINs (LENTA)
-        SELECT 
-            e.NombreEstudiante,
-            c.NombreCurso,
-            p.NombreProfesor,
-            m.NotaFinal,
-            m.Semestre
-        FROM Matriculas m
-        INNER JOIN Estudiantes e ON m.EstudianteID = e.EstudianteID
-        INNER JOIN Cursos c ON m.CursoID = c.CursoID
-        INNER JOIN Profesores p ON c.ProfesorID = p.ProfesorID
-        WHERE m.Semestre = '2024-I';`;
-            document.getElementById('sqlPreview').textContent = sqlCode;
-            document.getElementById('sqlPreview').style.display = 'block';
-            showFeedback('✅ SQL generado correctamente. Ahora puedes proceder a la desnormalización.', 'success', 'normalizationFeedback');
-            setupDenormalizationPhase();
-        }
-        function resetNormalization() {
-            const tablesTypes = ['estudiante', 'curso', 'profesor', 'matricula'];
-            const placeholderTexts = {
-                'estudiante': 'Arrastra aquí los atributos de Estudiante',
-                'curso': 'Arrastra aquí los atributos de Curso',
-                'profesor': 'Arrastra aquí los atributos de Profesor',
-                'matricula': 'Arrastra aquí los atributos de Matrícula'
+    }
+    function startNormalization() {
+        showPhase('normalization', document.querySelector('.phase-tab[data-phase="normalization"]'));
+        initializeNormalizationWorkspace();
+    }
+    function initializeNormalizationWorkspace() {
+        const originalAttributes = document.getElementById('originalAttributes');
+        const availableAttributes = document.getElementById('availableAttributes');
+        availableAttributes.innerHTML = '';
+        const attributes = originalAttributes.querySelectorAll('.attribute');
+        attributes.forEach(attr => {
+            const cloned = attr.cloneNode(true);
+            availableAttributes.appendChild(cloned);
+        });
+        setupDragAndDrop();
+    }
+    // ---- DRAG AND DROP UNIVERSAL FUNCTION ----
+    function setupDragAndDrop() {
+        // Limpia todos los eventos antes de asignar
+        document.querySelectorAll('.attribute').forEach(attr => {
+            attr.setAttribute('draggable', true);
+            attr.ondragstart = function(e) {
+                draggedElement = e.target;
+                e.target.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
             };
-            tablesTypes.forEach(tableType => {
-                const area = document.getElementById(tableType + '-attributes');
-                if (area) {
-                    area.innerHTML = '';
-                    area.classList.remove('has-attributes');
+            attr.ondragend = function(e) {
+                e.target.classList.remove('dragging');
+                draggedElement = null;
+            };
+            attr.ondblclick = function () {
+                const areaId = currentPhase === 'denormalization' ? 'denormSourceAttributes' : 'availableAttributes';
+                document.getElementById(areaId)?.appendChild(this);
+                showFeedback('Atributo devuelto', 'warning', currentPhase === 'denormalization' ? 'denormalizationFeedback' : 'normalizationFeedback');
+                const parentArea = this.parentElement;
+                if ([...parentArea.children].filter(child => !child.classList.contains('placeholder')).length === 0) {
+                    parentArea.classList.remove('has-attributes');
+                    const tableType = parentArea.closest('.table-container')?.dataset.tableType;
                     const placeholder = document.createElement('div');
                     placeholder.className = 'placeholder';
-                    placeholder.textContent = placeholderTexts[tableType];
-                    area.appendChild(placeholder);
+                    placeholder.textContent = {
+                        'estudiante': 'Arrastra aquí los atributos de Estudiante',
+                        'curso': 'Arrastra aquí los atributos de Curso',
+                        'profesor': 'Arrastra aquí los atributos de Profesor',
+                        'matricula': 'Arrastra aquí los atributos de Matrícula'
+                    }[tableType] || 'Arrastra aquí los atributos para el reporte';
+                    parentArea.appendChild(placeholder);
                 }
-            });
-            initializeNormalizationWorkspace();
-            normalizedTablesValid = false;
-            document.getElementById('generateSQLBtn').disabled = true;
-            document.getElementById('sqlPreview').style.display = 'none';
-            showFeedback('🔄 Workspace reiniciado. Puedes intentar de nuevo.', 'warning', 'normalizationFeedback');
-        }
-        function testDragDrop() {
-            const firstAttribute = document.querySelector('#availableAttributes .attribute');
-            const studentTable = document.querySelector('[data-table-type="estudiante"] .attributes-area');
-            if (firstAttribute && studentTable) {
-                const placeholder = studentTable.querySelector('.placeholder');
-                if (placeholder) {
-                    placeholder.remove();
-                    studentTable.classList.add('has-attributes');
-                }
-                studentTable.appendChild(firstAttribute);
                 setupDragAndDrop();
-                showFeedback('🧪 Prueba manual exitosa - el atributo se movió correctamente', 'success', 'normalizationFeedback');
-            } else {
-                showFeedback('❌ Error en la prueba - elementos no encontrados', 'error', 'normalizationFeedback');
-            }
-        }
-        function setupDenormalizationPhase() {
-            const normalizedTablesDiv = document.getElementById('normalizedTables');
-            normalizedTablesDiv.innerHTML = `
-                <div class="table-container">
-                    <div class="table-header">📊 Atributos Disponibles para Desnormalizar</div>
-                    <div id="denormSourceAttributes">
-                        <div class="attribute primary-key" data-for-denorm="true">EstudianteID</div>
-                        <div class="attribute" data-for-denorm="true">NombreEstudiante</div>
-                        <div class="attribute primary-key" data-for-denorm="true">CursoID</div>
-                        <div class="attribute" data-for-denorm="true">NombreCurso</div>
-                        <div class="attribute primary-key" data-for-denorm="true">ProfesorID</div>
-                        <div class="attribute" data-for-denorm="true">NombreProfesor</div>
-                        <div class="attribute" data-for-denorm="true">NotaFinal</div>
-                        <div class="attribute" data-for-denorm="true">Semestre</div>
-                        <div class="attribute" data-for-denorm="false">EmailEstudiante</div>
-                        <div class="attribute" data-for-denorm="false">CarreraEstudiante</div>
-                        <div class="attribute" data-for-denorm="false">Creditos</div>
-                        <div class="attribute" data-for-denorm="false">DepartamentoProfesor</div>
-                        <div class="attribute" data-for-denorm="false">FechaMatricula</div>
-                    </div>
-                </div>
-            `;
-            setupDragAndDrop();
-        }
-        function validateDenormalization() {
-            const reportArea = document.getElementById('reporte-attributes');
-            const attributes = Array.from(reportArea.children)
+            };
+        });
+        document.querySelectorAll('.table-container[data-table-type]').forEach(zone => {
+            zone.ondragover = function(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+            zone.ondragenter = function(e) { e.preventDefault(); if (draggedElement) this.classList.add('drop-zone'); };
+            zone.ondragleave = function(e) { if (!this.contains(e.relatedTarget)) this.classList.remove('drop-zone'); };
+            zone.ondrop = function(e) {
+                e.preventDefault();
+                this.classList.remove('drop-zone');
+                if (!draggedElement) return;
+                const tableType = this.dataset.tableType;
+                const attributeName = draggedElement.textContent.split('\n')[0].trim();
+                if (currentPhase === 'normalization' && validateAttributePlacement(attributeName, tableType)) {
+                    const attributesArea = this.querySelector('.attributes-area');
+                    const placeholder = attributesArea.querySelector('.placeholder');
+                    if (placeholder) {
+                        placeholder.remove();
+                        attributesArea.classList.add('has-attributes');
+                    }
+                    attributesArea.appendChild(draggedElement);
+                    showFeedback('✅ ¡Correcto! ' + attributeName + ' pertenece a la tabla ' + tableType, 'success', 'normalizationFeedback');
+                    setupDragAndDrop();
+                } else if (currentPhase === 'denormalization' && tableType === 'reporte') {
+                    const isForDenorm = draggedElement.dataset.forDenorm === 'true';
+                    const attributesArea = this.querySelector('.attributes-area');
+                    if (isForDenorm) {
+                        const placeholder = attributesArea.querySelector('.placeholder');
+                        if (placeholder) {
+                            placeholder.remove();
+                            attributesArea.classList.add('has-attributes');
+                        }
+                        attributesArea.appendChild(draggedElement);
+                        showFeedback('✅ ¡Correcto! ' + attributeName + ' es necesario para el reporte', 'success', 'denormalizationFeedback');
+                        setupDragAndDrop();
+                    } else {
+                        this.classList.add('error');
+                        showFeedback('❌ Error: ' + attributeName + ' no es necesario para este reporte.', 'error', 'denormalizationFeedback');
+                        setTimeout(() => { this.classList.remove('error'); }, 1000);
+                    }
+                } else {
+                    this.classList.add('error');
+                    const expectedTable = draggedElement.dataset.table;
+                    showFeedback('❌ Error: ' + attributeName + ' no pertenece a la tabla ' + tableType + (expectedTable ? `. Pista: pertenece a ${expectedTable}` : ''), 'error', 'normalizationFeedback');
+                    setTimeout(() => { this.classList.remove('error'); }, 1000);
+                }
+            };
+        });
+    }
+    function validateAttributePlacement(attributeName, tableType) {
+        return correctNormalization[tableType] && correctNormalization[tableType].includes(attributeName);
+    }
+    // El resto de tus funciones JS de validación, SQL y feedback (idénticas a las anteriores)...
+    function validateNormalization() {
+        const tables = ['estudiante', 'curso', 'profesor', 'matricula'];
+        let allCorrect = true;
+        let feedback = '🔍 Validación de Normalización:\n\n';
+        tables.forEach(tableType => {
+            const attributesArea = document.getElementById(tableType + '-attributes');
+            const attributes = Array.from(attributesArea.children)
                 .filter(child => !child.classList.contains('placeholder'))
-                .map(attr => attr.textContent.trim());
-            const missing = correctDenormalization.filter(attr => !attributes.includes(attr));
-            const extra = attributes.filter(attr => !correctDenormalization.includes(attr));
-            let feedback = '🔍 Validación de Desnormalización:\n\n';
+                .map(attr => attr.textContent.split('\n')[0].trim());
+            const expected = correctNormalization[tableType];
+            const missing = expected.filter(attr => !attributes.includes(attr));
+            const extra = attributes.filter(attr => !expected.includes(attr));
             if (missing.length === 0 && extra.length === 0) {
-                feedback += '✅ ¡Perfecto! La tabla desnormalizada está correcta.\n\n';
-                feedback += '📊 Incluye exactamente los campos necesarios para el reporte:\n';
-                feedback += '• Identificadores para mantener relaciones\n';
-                feedback += '• Nombres descriptivos para mostrar\n';
-                feedback += '• Nota final y semestre para filtrar\n\n';
-                feedback += '🚀 Ahora puedes generar el SQL optimizado.';
-                denormalizedTableValid = true;
-                document.getElementById('generateDenormSQLBtn').disabled = false;
-                document.getElementById('performanceBtn').disabled = false;
-                showFeedback(feedback, 'success', 'denormalizationFeedback');
+                feedback += `✅ Tabla ${tableType}: Correcta\n`;
             } else {
-                if (missing.length > 0) feedback += `❌ Faltan campos importantes: ${missing.join(', ')}\n`;
-                if (extra.length > 0) feedback += `⚠️ Campos innecesarios: ${extra.join(', ')}\n`;
-                feedback += '\n💡 Recuerda: incluye solo lo necesario para el reporte de notas.';
-                showFeedback(feedback, 'error', 'denormalizationFeedback');
+                allCorrect = false;
+                feedback += `❌ Tabla ${tableType}:\n`;
+                if (missing.length > 0) feedback += `   Faltan: ${missing.join(', ')}\n`;
+                if (extra.length > 0) feedback += `   Sobran: ${extra.join(', ')}\n`;
             }
+        });
+        if (allCorrect) {
+            feedback += '\n🎉 ¡Excelente! La normalización está correcta. Puedes generar el SQL.';
+            normalizedTablesValid = true;
+            document.getElementById('generateSQLBtn').disabled = false;
+            showFeedback(feedback, 'success', 'normalizationFeedback');
+        } else {
+            feedback += '\n💡 Revisa los errores y ajusta los atributos.';
+            showFeedback(feedback, 'error', 'normalizationFeedback');
         }
-        function generateDenormalizedSQL() {
-            if (!denormalizedTableValid) return;
-            const sqlCode = `-- Tabla Desnormalizada para Reportes (Optimizada)
-        CREATE TABLE ReporteAcademico (
-            EstudianteID INT,
-            NombreEstudiante VARCHAR(100), -- Redundancia intencional
-            CursoID INT,
-            NombreCurso VARCHAR(150),      -- Redundancia intencional
-            ProfesorID INT,
-            NombreProfesor VARCHAR(100),   -- Redundancia intencional
-            NotaFinal DECIMAL(4,2),
-            Semestre VARCHAR(10),
-            FechaActualizacion DATETIME DEFAULT GETDATE()
-        );
-        
-        -- Consulta Optimizada (SIN JOINs - RÁPIDA)
-        SELECT 
-            NombreEstudiante,
-            NombreCurso,
-            NombreProfesor,
-            NotaFinal,
-            Semestre
-        FROM ReporteAcademico
-        WHERE Semestre = '2024-I';
-        
-        -- Procedimiento para mantener sincronización
-        CREATE PROCEDURE sp_ActualizarReporteAcademico
-        AS
-        BEGIN
-            TRUNCATE TABLE ReporteAcademico;
-            INSERT INTO ReporteAcademico (
-                EstudianteID, NombreEstudiante, CursoID, NombreCurso,
-                ProfesorID, NombreProfesor, NotaFinal, Semestre
-            )
-            SELECT 
-                e.EstudianteID, e.NombreEstudiante,
-                c.CursoID, c.NombreCurso,
-                p.ProfesorID, p.NombreProfesor,
-                m.NotaFinal, m.Semestre
-            FROM Matriculas m
-            INNER JOIN Estudiantes e ON m.EstudianteID = e.EstudianteID
-            INNER JOIN Cursos c ON m.CursoID = c.CursoID
-            INNER JOIN Profesores p ON c.ProfesorID = p.ProfesorID;
-        END;`;
-            document.getElementById('denormSqlPreview').textContent = sqlCode;
-            document.getElementById('denormSqlPreview').style.display = 'block';
-            showFeedback('✅ SQL de desnormalización generado correctamente. ¡Puedes ver la mejora de rendimiento!', 'success', 'denormalizationFeedback');
+    }
+    function generateSQL() {
+        if (!normalizedTablesValid) return;
+        const sqlCode = `-- Estructura Normalizada (3FN)
+CREATE TABLE Estudiantes (
+    EstudianteID INT PRIMARY KEY,
+    NombreEstudiante VARCHAR(100),
+    EmailEstudiante VARCHAR(100),
+    CarreraEstudiante VARCHAR(80)
+);
+CREATE TABLE Profesores (
+    ProfesorID INT PRIMARY KEY,
+    NombreProfesor VARCHAR(100),
+    DepartamentoProfesor VARCHAR(50)
+);
+CREATE TABLE Cursos (
+    CursoID INT PRIMARY KEY,
+    NombreCurso VARCHAR(150),
+    Creditos INT,
+    ProfesorID INT,
+    FOREIGN KEY (ProfesorID) REFERENCES Profesores(ProfesorID)
+);
+CREATE TABLE Matriculas (
+    EstudianteID INT,
+    CursoID INT,
+    FechaMatricula DATE,
+    NotaFinal DECIMAL(4,2),
+    Semestre VARCHAR(10),
+    PRIMARY KEY (EstudianteID, CursoID),
+    FOREIGN KEY (EstudianteID) REFERENCES Estudiantes(EstudianteID),
+    FOREIGN KEY (CursoID) REFERENCES Cursos(CursoID)
+);
+-- Consulta que requiere múltiples JOINs (LENTA)
+SELECT 
+    e.NombreEstudiante,
+    c.NombreCurso,
+    p.NombreProfesor,
+    m.NotaFinal,
+    m.Semestre
+FROM Matriculas m
+INNER JOIN Estudiantes e ON m.EstudianteID = e.EstudianteID
+INNER JOIN Cursos c ON m.CursoID = c.CursoID
+INNER JOIN Profesores p ON c.ProfesorID = p.ProfesorID
+WHERE m.Semestre = '2024-I';`;
+        document.getElementById('sqlPreview').textContent = sqlCode;
+        document.getElementById('sqlPreview').style.display = 'block';
+        showFeedback('✅ SQL generado correctamente. Ahora puedes proceder a la desnormalización.', 'success', 'normalizationFeedback');
+        setupDenormalizationPhase();
+    }
+    function resetNormalization() {
+        const tablesTypes = ['estudiante', 'curso', 'profesor', 'matricula'];
+        const placeholderTexts = {
+            'estudiante': 'Arrastra aquí los atributos de Estudiante',
+            'curso': 'Arrastra aquí los atributos de Curso',
+            'profesor': 'Arrastra aquí los atributos de Profesor',
+            'matricula': 'Arrastra aquí los atributos de Matrícula'
+        };
+        tablesTypes.forEach(tableType => {
+            const area = document.getElementById(tableType + '-attributes');
+            if (area) {
+                area.innerHTML = '';
+                area.classList.remove('has-attributes');
+                const placeholder = document.createElement('div');
+                placeholder.className = 'placeholder';
+                placeholder.textContent = placeholderTexts[tableType];
+                area.appendChild(placeholder);
+            }
+        });
+        initializeNormalizationWorkspace();
+        normalizedTablesValid = false;
+        document.getElementById('generateSQLBtn').disabled = true;
+        document.getElementById('sqlPreview').style.display = 'none';
+        showFeedback('🔄 Workspace reiniciado. Puedes intentar de nuevo.', 'warning', 'normalizationFeedback');
+    }
+    function testDragDrop() {
+        const firstAttribute = document.querySelector('#availableAttributes .attribute');
+        const studentTable = document.querySelector('[data-table-type="estudiante"] .attributes-area');
+        if (firstAttribute && studentTable) {
+            const placeholder = studentTable.querySelector('.placeholder');
+            if (placeholder) {
+                placeholder.remove();
+                studentTable.classList.add('has-attributes');
+            }
+            studentTable.appendChild(firstAttribute);
+            setupDragAndDrop();
+            showFeedback('🧪 Prueba manual exitosa - el atributo se movió correctamente', 'success', 'normalizationFeedback');
+        } else {
+            showFeedback('❌ Error en la prueba - elementos no encontrados', 'error', 'normalizationFeedback');
         }
-        function showPerformanceComparison() {
-            const beforeTime = (Math.random() * 2 + 2.5).toFixed(2);
-            const afterTime = (Math.random() * 0.3 + 0.1).toFixed(2);
-            const improvement = (beforeTime / afterTime).toFixed(1);
-            const comparisonHTML = `
-                <div style="background: linear-gradient(45deg, #4caf50, #8bc34a); color: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
-                    <h3>📈 Análisis de Rendimiento</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
-                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px;">
-                            <h4>🐌 Consulta Normalizada</h4>
-                            <p><strong>Tiempo:</strong> ${beforeTime}s</p>
-                            <p><strong>JOINs:</strong> 3 tablas</p>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px;">
-                            <h4>🚀 Consulta Desnormalizada</h4>
-                            <p><strong>Tiempo:</strong> ${afterTime}s</p>
-                            <p><strong>JOINs:</strong> 0</p>
-                        </div>
+    }
+    function setupDenormalizationPhase() {
+        const normalizedTablesDiv = document.getElementById('normalizedTables');
+        normalizedTablesDiv.innerHTML = `
+            <div class="table-container">
+                <div class="table-header">📊 Atributos Disponibles para Desnormalizar</div>
+                <div id="denormSourceAttributes">
+                    <div class="attribute primary-key" data-for-denorm="true">EstudianteID</div>
+                    <div class="attribute" data-for-denorm="true">NombreEstudiante</div>
+                    <div class="attribute primary-key" data-for-denorm="true">CursoID</div>
+                    <div class="attribute" data-for-denorm="true">NombreCurso</div>
+                    <div class="attribute primary-key" data-for-denorm="true">ProfesorID</div>
+                    <div class="attribute" data-for-denorm="true">NombreProfesor</div>
+                    <div class="attribute" data-for-denorm="true">NotaFinal</div>
+                    <div class="attribute" data-for-denorm="true">Semestre</div>
+                    <div class="attribute" data-for-denorm="false">EmailEstudiante</div>
+                    <div class="attribute" data-for-denorm="false">CarreraEstudiante</div>
+                    <div class="attribute" data-for-denorm="false">Creditos</div>
+                    <div class="attribute" data-for-denorm="false">DepartamentoProfesor</div>
+                    <div class="attribute" data-for-denorm="false">FechaMatricula</div>
+                </div>
+            </div>
+        `;
+        setupDragAndDrop();
+    }
+    function validateDenormalization() {
+        const reportArea = document.getElementById('reporte-attributes');
+        const attributes = Array.from(reportArea.children)
+            .filter(child => !child.classList.contains('placeholder'))
+            .map(attr => attr.textContent.trim());
+        const missing = correctDenormalization.filter(attr => !attributes.includes(attr));
+        const extra = attributes.filter(attr => !correctDenormalization.includes(attr));
+        let feedback = '🔍 Validación de Desnormalización:\n\n';
+        if (missing.length === 0 && extra.length === 0) {
+            feedback += '✅ ¡Perfecto! La tabla desnormalizada está correcta.\n\n';
+            feedback += '📊 Incluye exactamente los campos necesarios para el reporte:\n';
+            feedback += '• Identificadores para mantener relaciones\n';
+            feedback += '• Nombres descriptivos para mostrar\n';
+            feedback += '• Nota final y semestre para filtrar\n\n';
+            feedback += '🚀 Ahora puedes generar el SQL optimizado.';
+            denormalizedTableValid = true;
+            document.getElementById('generateDenormSQLBtn').disabled = false;
+            document.getElementById('performanceBtn').disabled = false;
+            showFeedback(feedback, 'success', 'denormalizationFeedback');
+        } else {
+            if (missing.length > 0) feedback += `❌ Faltan campos importantes: ${missing.join(', ')}\n`;
+            if (extra.length > 0) feedback += `⚠️ Campos innecesarios: ${extra.join(', ')}\n`;
+            feedback += '\n💡 Recuerda: incluye solo lo necesario para el reporte de notas.';
+            showFeedback(feedback, 'error', 'denormalizationFeedback');
+        }
+    }
+    function generateDenormalizedSQL() {
+        if (!denormalizedTableValid) return;
+        const sqlCode = `-- Tabla Desnormalizada para Reportes (Optimizada)
+CREATE TABLE ReporteAcademico (
+    EstudianteID INT,
+    NombreEstudiante VARCHAR(100), -- Redundancia intencional
+    CursoID INT,
+    NombreCurso VARCHAR(150),      -- Redundancia intencional
+    ProfesorID INT,
+    NombreProfesor VARCHAR(100),   -- Redundancia intencional
+    NotaFinal DECIMAL(4,2),
+    Semestre VARCHAR(10),
+    FechaActualizacion DATETIME DEFAULT GETDATE()
+);
+-- Consulta Optimizada (SIN JOINs - RÁPIDA)
+SELECT 
+    NombreEstudiante,
+    NombreCurso,
+    NombreProfesor,
+    NotaFinal,
+    Semestre
+FROM ReporteAcademico
+WHERE Semestre = '2024-I';
+-- Procedimiento para mantener sincronización
+CREATE PROCEDURE sp_ActualizarReporteAcademico
+AS
+BEGIN
+    TRUNCATE TABLE ReporteAcademico;
+    INSERT INTO ReporteAcademico (
+        EstudianteID, NombreEstudiante, CursoID, NombreCurso,
+        ProfesorID, NombreProfesor, NotaFinal, Semestre
+    )
+    SELECT 
+        e.EstudianteID, e.NombreEstudiante,
+        c.CursoID, c.NombreCurso,
+        p.ProfesorID, p.NombreProfesor,
+        m.NotaFinal, m.Semestre
+    FROM Matriculas m
+    INNER JOIN Estudiantes e ON m.EstudianteID = e.EstudianteID
+    INNER JOIN Cursos c ON m.CursoID = c.CursoID
+    INNER JOIN Profesores p ON c.ProfesorID = p.ProfesorID;
+END;`;
+        document.getElementById('denormSqlPreview').textContent = sqlCode;
+        document.getElementById('denormSqlPreview').style.display = 'block';
+        showFeedback('✅ SQL de desnormalización generado correctamente. ¡Puedes ver la mejora de rendimiento!', 'success', 'denormalizationFeedback');
+    }
+    function showPerformanceComparison() {
+        const beforeTime = (Math.random() * 2 + 2.5).toFixed(2);
+        const afterTime = (Math.random() * 0.3 + 0.1).toFixed(2);
+        const improvement = (beforeTime / afterTime).toFixed(1);
+        const comparisonHTML = `
+            <div style="background: linear-gradient(45deg, #4caf50, #8bc34a); color: white; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h3>📈 Análisis de Rendimiento</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px;">
+                        <h4>🐌 Consulta Normalizada</h4>
+                        <p><strong>Tiempo:</strong> ${beforeTime}s</p>
+                        <p><strong>JOINs:</strong> 3 tablas</p>
                     </div>
-                    <div style="text-align: center; font-size: 1.2em;">
-                        <strong>🎯 Mejora: ${improvement}x más rápida</strong>
+                    <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 8px;">
+                        <h4>🚀 Consulta Desnormalizada</h4>
+                        <p><strong>Tiempo:</strong> ${afterTime}s</p>
+                        <p><strong>JOINs:</strong> 0</p>
                     </div>
                 </div>
-            `;
-            const performanceDiv = document.createElement('div');
-            performanceDiv.innerHTML = comparisonHTML;
-            document.getElementById('denormalization').appendChild(performanceDiv);
-            document.getElementById('step3').classList.remove('current');
-            document.getElementById('step3').classList.add('completed');
-            showFeedback('🎉 ¡Laboratorio completado exitosamente!', 'success', 'denormalizationFeedback');
-        }
-        
-        // ---- FEEDBACK ----
-        function showFeedback(message, type, containerId) {
-            const feedback = document.getElementById(containerId);
-            feedback.className = `feedback ${type}`;
-            feedback.textContent = message;
-            feedback.style.display = 'block';
-            if (type === 'success') {
-                setTimeout(() => { feedback.style.display = 'none'; }, 5000);
-            }
-        }
-
+                <div style="text-align: center; font-size: 1.2em;">
+                    <strong>🎯 Mejora: ${improvement}x más rápida</strong>
+                </div>
+            </div>
+        `;
+        const performanceDiv = document.createElement('div');
+        performanceDiv.innerHTML = comparisonHTML;
+        document.getElementById('denormalization').appendChild(performanceDiv);
+        document.getElementById('step3').classList.remove('current');
+        document.getElementById('step3').classList.add('completed');
+        showFeedback('🎉 ¡Laboratorio completado exitosamente!', 'success', 'denormalizationFeedback');
+    }
+    function showFeedback(message, type, containerId) {
+        const feedback = document.getElementById(containerId);
+        feedback.className = `feedback ${type}`;
+        feedback.textContent = message;
+        feedback.style.display = 'block';
+        if (type === 'success') setTimeout(() => { feedback.style.display = 'none'; }, 5000);
+    }
+    // --- JS FIN ---
     </script>
 </body>
 </html>
